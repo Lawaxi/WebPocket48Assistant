@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>口袋48助手</title>
+    <link rel="stylesheet" href="style.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h1>登录</h1>
+        <form id="loginForm">
+            <label for="mobile">账号：</label>
+            <input type="text" id="mobile" placeholder="请输入账号" required>
+            <label for="pwd">密码：</label>
+            <input type="password" id="pwd" placeholder="请输入密码" required>
+            <button type="submit">登录</button>
+        </form>
+        <hr>
+        <h2>已登录账号</h2>
+        <select id="accountSelect"></select>
+        <div>
+            <p>已选择账号: <span id="selectedNickname"></span> (ID: <span id="selectedId"></span>)</p>
+            <p>余额: <span id="selectedBalance"></span></p>
+            <button id="refreshBalanceButton">刷新余额</button>
+            <button id="logoutButton">退出登录</button>
+        </div>
+        <h2>转账</h2>
+        <input type="text" id="transferInput" placeholder="对方ID">
+        <div>
+            <button class="transfer-button" data-gift-id="5">5</button>
+            <button class="transfer-button" data-gift-id="10">10</button>
+            <button class="transfer-button" data-gift-id="20">20</button>
+            <button class="transfer-button" data-gift-id="48">48</button>
+            <button class="transfer-button" data-gift-id="148">148</button>
+            <button class="transfer-button" data-gift-id="1048">1048</button>
+            <button class="transfer-button" data-gift-id="1500">1500</button>
+            <button class="transfer-button" data-gift-id="2880">2880</button>
+            <button class="transfer-button" data-gift-id="3000">3000</button>
+            <button class="transfer-button" data-gift-id="5000">5000</button>
+            <button class="transfer-button" data-gift-id="5228">5228</button>
+            <button class="transfer-button" data-gift-id="9999">9999</button>
+            <button class="transfer-button" data-gift-id="19999">19999</button>
+        </div>
+    </div>
+    <script src="script.js"></script> <!-- Link to the JavaScript file -->
+</body>
+</html>
