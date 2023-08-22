@@ -16,6 +16,12 @@
             <input type="password" id="pwd" placeholder="请输入密码" required>
             <button type="submit">登录</button>
         </form>
+        <h1>或 使用 Token 登录</h1>
+        <form id="tokenLoginForm">
+                <label for="tokenInput">Token：</label>
+                <input type="text" id="tokenInput" placeholder="请输入 Token">
+                <button type="submit" id="tokenLoginButton">用 Token 登录</button>
+            </form>
         <hr>
         <h2>已登录账号</h2>
         <select id="accountSelect"></select>
@@ -23,6 +29,7 @@
             <p>已选择账号: <span id="selectedNickname"></span> (ID: <span id="selectedId"></span>)</p>
             <p>余额: <span id="selectedBalance"></span></p>
             <button id="refreshBalanceButton">刷新余额</button>
+    <button id="copyTokenButton">复制 Token</button>
             <button id="logoutButton">退出登录</button>
         </div>
         <h2>转账</h2>

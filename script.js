@@ -6,12 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedId = document.getElementById("selectedId");
     const selectedBalance = document.getElementById("selectedBalance");
     const refreshBalanceButton = document.getElementById("refreshBalanceButton");
+    const copyTokenButton = document.getElementById("copyTokenButton");
     const logoutButton = document.getElementById("logoutButton");
     const transferInput = document.getElementById("transferInput");
     const transferButtons = document.querySelectorAll(".transfer-button");
 
-    let currentToken = "";
+    let currentToken = ""; //此变量只由updateSelectedAccount更改
 
+   //登录前
     loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const mobile = document.getElementById("mobile").value;
@@ -53,11 +55,84 @@ document.addEventListener("DOMContentLoaded", () => {
                 id: content.userInfo.userId,
                 balance: content.userInfo.money
             };
-            document.cookie = `accountInfo=${encodeURIComponent(JSON.stringify(accountInfo))}; ${document.cookie}`;
+            const existingAccountInfos = getExistingAccountInfosFromCookie();
+            existingAccountInfos.push(accountInfo);
+            const cookieValue = JSON.stringify(existingAccountInfos);
+            document.cookie = `accountInfos=${encodeURIComponent(cookieValue)}; `;
             
-            updateAccountSelect();
+            updateAccountSelector();
+            const newOption = accountSelect.querySelector(`option[value="${accountInfo.id}"]`);
+            if (newOption) {
+                newOption.selected = true;
+            }
             updateSelectedAccount(accountInfo);
-            alert("未登录");
+            alert("已登录");
+        } else {
+            alert(`登录失败${response.status}: ${response.message}`);
+        }
+        });
+    });
+    
+    tokenLoginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const token = tokenInput.value;
+        
+        fetch("https://pocketapi.48.cn/user/api/v1/user/info/reload", {
+            method: "POST",
+            headers: {
+                "Host": "pocketapi.48.cn",
+                "Content-Type": "application/json;charset=utf-8",
+                "Content-Length": "153",
+                "Accept": "*/*",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
+                "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
+                "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
+                "appInfo": JSON.stringify({
+                    "vendor": "apple",
+                    "deviceId": "4581AA0C-6E65-47AC-8763-03674049AC53",
+                    "appVersion": "7.1.0",
+                    "appBuild": "23051902",
+                    "osVersion": "16.6.0",
+                    "osType": "ios",
+                    "deviceName": "iPad Air (4th generation)",
+                    "os": "ios"
+                }),
+                "token":token
+            },
+            body: "{}"
+        }).then(response => response.json())
+        .then(response => {
+        
+
+        if (response.status === 200) {
+            const { content } = response;
+            
+            // Store account info in cookie
+            const accountInfo = {
+                token: token,
+                nickname: content.nickname,
+                id: content.userId,
+                balance: content.money
+            };
+            if(getAccountInfo(accountInfo.id)!==null){
+            alert("登录信息中存在相同ID账号");
+                return;
+            }
+            
+            const existingAccountInfos = getExistingAccountInfosFromCookie();
+            existingAccountInfos.push(accountInfo);
+            const cookieValue = JSON.stringify(existingAccountInfos);
+            document.cookie = `accountInfos=${encodeURIComponent(cookieValue)}; `;
+            
+            updateAccountSelector();
+            const newOption = accountSelect.querySelector(`option[value="${accountInfo.id}"]`);
+            if (newOption) {
+                newOption.selected = true;
+            }
+            updateSelectedAccount(accountInfo);
+            alert("已登录");
         } else {
             alert(`登录失败${response.status}: ${response.message}`);
         }
@@ -95,32 +170,65 @@ document.addEventListener("DOMContentLoaded", () => {
         return await response.json();
     }
 
-    function updateAccountSelect() {
+   //更新选择器选项
+    function updateAccountSelector() {
         accountSelect.innerHTML = "";
-        let first = true;
+        const existingAccountInfos = getExistingAccountInfosFromCookie();
+        
+        existingAccountInfos.forEach(accountInfo => {
+            const option = document.createElement("option");
+            option.value = accountInfo.id;
+            option.textContent = accountInfo.nickname;
+            accountSelect.appendChild(option);
+        });
+    }
+    
+    function updateAndSelect(){
+        updateAccountSelector();
+        const existingAccountInfos = getExistingAccountInfosFromCookie();
+        if (existingAccountInfos.length > 0) {
+                // Select the first account by default
+                const firstAccount = existingAccountInfos[0];
+                updateSelectedAccount(firstAccount);
+            } else {
+                // No accounts available, clear the selected account info
+                updateSelectedAccount(null);
+            }
+    }
+    
+   //更新当前所选项的显示
+    function updateSelectedAccount(accountInfo) {
+        if (accountInfo) {
+            selectedNickname.textContent = accountInfo.nickname;
+            selectedId.textContent = accountInfo.id;
+            selectedBalance.textContent = accountInfo.balance;
+            currentToken = accountInfo.token;
+        } else {
+            selectedNickname.textContent = "";
+            selectedId.textContent = "";
+            selectedBalance.textContent = "";
+            currentToken = "";
+        }
+    }
+    
+    function getExistingAccountInfosFromCookie() {
         const cookies = document.cookie.split("; ");
         for (const cookie of cookies) {
             const [name, value] = cookie.split("=");
-            if (name === "accountInfo") {
-                const accountInfo = JSON.parse(decodeURIComponent(value));
-                const option = document.createElement("option");
-                option.value = accountInfo.id;
-                option.textContent = accountInfo.nickname;
-                accountSelect.appendChild(option);
-                if(first){
-                    first = false;
-                    updateSelectedAccount(accountInfo);
-                }
+            if (name === "accountInfos") {
+                return JSON.parse(decodeURIComponent(value));
             }
         }
+        return [];
+    }
+    
+    function getAccountInfo(accountId) {
+        const existingAccountInfos = getExistingAccountInfosFromCookie();
+        const accountInfo = existingAccountInfos.find(info => info.id == accountId);
+        return accountInfo || null;
     }
 
-    function updateSelectedAccount(accountInfo) {
-        selectedNickname.textContent = accountInfo.nickname;
-        selectedId.textContent = accountInfo.id;
-        selectedBalance.textContent = accountInfo.balance;
-        currentToken = accountInfo.token;
-    }
+    
 	const giftIdMap = {
     "19999": "325233801525268480",
     "9999": "325232177465593856",
@@ -195,22 +303,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const updatedBalance = response.content.money;
             selectedBalance.textContent = updatedBalance;
             
-            // Update balance in the stored account info
-            let cookie_new = "";
-            const cookies = document.cookie.split("; ");
-            for (const cookie of cookies) {
-                const [name, value] = cookie.split("=");
-                if (name === "accountInfo") {
-                let accountInfo = JSON.parse(decodeURIComponent(value));
-                if(currentToken === accountInfo.token){
-                    accountInfo.balance = updatedBalance;
-                    cookie_new+="; "+encodeURIComponent(JSON.stringify(accountInfo));
-                    continue;
-                }
-                }
-                cookie_new+="; "+cookie;
+            // Update balance in the stored account info        const existingAccountInfos = getExistingAccountInfosFromCookie();
+        const updatedAccountInfos = existingAccountInfos.map(info => {
+            if (info.token === currentToken) {
+                info.balance = updatedBalance;
             }
-            document.cookie = cookie_new.slice(2);
+            return info;
+        });
+
+        const cookieValue = JSON.stringify(updatedAccountInfos);
+        document.cookie = `accountInfos=${encodeURIComponent(cookieValue)};`;
 
             alert("转账成功");
         } else {
@@ -233,19 +335,34 @@ document.addEventListener("DOMContentLoaded", () => {
             selectedBalance.textContent = updatedBalance;
             
             // Update balance in the stored account info
-            const cookies = document.cookie.split("; ");
-            for (const cookie of cookies) {
-                const [name, value] = cookie.split("=");
-                if (name === "accountInfo") {
-                    const accountInfo = JSON.parse(decodeURIComponent(value));
-                    accountInfo.balance = updatedBalance;
-                    document.cookie = `accountInfo=${JSON.stringify(accountInfo)};path=/`;
-                    break;
-                }
+        const existingAccountInfos = getExistingAccountInfosFromCookie();
+        const updatedAccountInfos = existingAccountInfos.map(info => {
+            if (info.token === currentToken) {
+                info.balance = updatedBalance;
             }
+            return info;
+        });
+
+        const cookieValue = JSON.stringify(updatedAccountInfos);
+        document.cookie = `accountInfos=${encodeURIComponent(cookieValue)};`;
+
             alert("余额已刷新");
         } else {
             alert(`刷新余额失败${response.status}: ${response.message}`);
+        }
+    });
+    
+    copyTokenButton.addEventListener("click", () => {
+        if (currentToken !== "") {
+            const tempInput = document.createElement("input");
+            tempInput.value = currentToken;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("Token 已复制到剪贴板！");
+        } else {
+            alert("未登录");
         }
     });
 
@@ -259,21 +376,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const response = await fetchData("https://pocketapi.48.cn/user/api/v1/logout/user", {});
         if (response.status === 200) {
             // Remove account info from cookie
-            let cookie_new = "";
-            const cookies = document.cookie.split("; ");
-            for (const cookie of cookies) {
-                const [name, value] = cookie.split("=");
-                if (name === "accountInfo") {
-                const accountInfo = JSON.parse(decodeURIComponent(value));
-                if(currentToken === accountInfo.token){
-                    continue;
-                }
-                }
-                cookie_new+="; "+cookie;
-            }
-            document.cookie = cookie_new.slice(2);
-            updateAccountSelect();
-            currentToken = "";
+             const existingAccountInfos = getExistingAccountInfosFromCookie();
+            const updatedAccountInfos = existingAccountInfos.filter(info => info.token !== currentToken);
+        
+            const cookieValue = JSON.stringify(updatedAccountInfos);
+            document.cookie = `accountInfos=${encodeURIComponent(cookieValue)};`;
+            
+            updateAndSelect();
             alert("已退出");
         } else {
             alert(`退出登录失败${response.status}: ${response.message}`);
@@ -281,20 +390,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     accountSelect.addEventListener("change", () => {
-        const id = accountSelect.value;
-        const cookies = document.cookie.split("; ");
-            for (const cookie of cookies) {
-                const [name, value] = cookie.split("=");
-                if (name === "accountInfo") {
-                const accountInfo = JSON.parse(decodeURIComponent(value));
-                if(id == accountInfo.id){
-                    updateSelectedAccount(accountInfo);
-                    break;
-                }
-                }
-            }
+        const selectedAccountId = accountSelect.value;
+        const selectedAccountInfo = getAccountInfo(selectedAccountId);
+        updateSelectedAccount(selectedAccountInfo);
     });
 
-    updateAccountSelect();
+    updateAndSelect();
     updateTransferButtons();
 });
