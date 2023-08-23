@@ -48,6 +48,13 @@ button:hover {
     background-color: #1E88E5;
 }
 
+.private-mode-message {
+    display: none;
+    color: #999;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
 select {
     padding: 10px;
     border: 1px solid #ccc;
@@ -74,4 +81,12 @@ select {
 
 .transfer-button:hover {
     background-color: #1E88E5;
+}
+
+.disclaimer {
+    background-color: #f0f0f0;
+    padding: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
 }
