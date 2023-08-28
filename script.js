@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const copyIdButton = document.getElementById("copyIdButton");
 	const copyTokenButton = document.getElementById("copyTokenButton");
 	const logoutButton = document.getElementById("logoutButton");
+    const queryButton = document.getElementById("queryButton");
 	const transferInput = document.getElementById("transferInput");
 	const transferButtons = document.querySelectorAll(".transfer-button");
 
@@ -277,7 +278,39 @@ document.addEventListener("DOMContentLoaded", () => {
 			selectedBalance.textContent = "";
 		}
 	}
+	
+    queryButton.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
 
+		const sendToUserId = transferInput.value;
+		if (sendToUserId === "") {
+			alert("未输入对方ID");
+			return;
+		} 
+
+        const queryResponse = await fetchData("https://pocketapi.48.cn/user/api/v1/user/info/home", {
+            userId: parseInt(sendToUserId)
+        });
+
+        if (queryResponse.status === 200) {
+            const nickname = queryResponse.content.baseUserInfo.nickname;
+
+            const tempInput = document.createElement("input");
+            tempInput.value = nickname;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            alert(`查询成功：${nickname}`);
+        } else {
+            alert(`查询失败：${queryResponse.message}`);
+        }
+    });
+    
 	const giftIdMap = {
 		"19999": "325233801525268480",
 		"9999": "325232177465593856",
