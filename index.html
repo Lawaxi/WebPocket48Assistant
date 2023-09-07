@@ -27,18 +27,26 @@
 			<h2>已登录账号</h2>
 			<p id="privateModeMessage" class="private-mode-message">无痕模式下无法保存登录信息，关闭浏览器会清空，可以复制登录 Token 到其他地方</p>
 			<select id="accountSelect"></select>
+			<button id="deleteAccountButton">删除当前项</button>
 			<div>
 				<p>已选择账号: <span id="selectedNickname"></span> (ID: <span id="selectedId"></span>)</p>
 				<p>余额: <span id="selectedBalance"></span>
 				</p>
+				<input type="text" id="nicknameInput" placeholder="输入新昵称">
+				<button id="modifyNicknameButton">修改昵称</button>
+			</div>
+			<div>
 				<button id="refreshBalanceButton">刷新余额</button>
 				<button id="copyIdButton">复制 ID</button>
 				<button id="copyTokenButton">复制 Token</button>
 				<button id="logoutButton">退出登录</button>
 			</div>
-			<h2>转账</h2>
-			<input type="text" id="transferInput" placeholder="对方ID">
-            <button id="queryButton">查询昵称</button>
+			<h2>直播送礼</h2>
+			<select id="liveSelect">
+				<option value="">请点击按钮刷新直播列表</option>
+			</select>
+			<button id="refreshLiveButton">刷新直播列表</button>
+			<p>点击礼物按钮直接送礼：</p>
 			<div>
 				<button class="transfer-button" data-gift-id="5">5</button>
 				<button class="transfer-button" data-gift-id="10">10</button>

@@ -2,29 +2,68 @@
 document.addEventListener("DOMContentLoaded", () => {
 	const loginForm = document.getElementById("loginForm");
 	const accountSelect = document.getElementById("accountSelect");
+	const deleteAccountButton = document.getElementById("deleteAccountButton");
 	const selectedNickname = document.getElementById("selectedNickname");
 	const selectedId = document.getElementById("selectedId");
 	const selectedBalance = document.getElementById("selectedBalance");
+
+	const nicknameInput = document.getElementById("nicknameInput");
+	const modifyNicknameButton = document.getElementById("modifyNicknameButton");
+
 	const refreshBalanceButton = document.getElementById("refreshBalanceButton");
 	const copyIdButton = document.getElementById("copyIdButton");
 	const copyTokenButton = document.getElementById("copyTokenButton");
 	const logoutButton = document.getElementById("logoutButton");
-    const queryButton = document.getElementById("queryButton");
-	const transferInput = document.getElementById("transferInput");
+
+	const liveSelect = document.getElementById("liveSelect");
+	const refreshLiveButton = document.getElementById("refreshLiveButton");
 	const transferButtons = document.querySelectorAll(".transfer-button");
 
 	var currentToken = ""; //此变量只由updateSelectedAccount更改
 	var privateMode = isPrivateMode(); //iOS Safari无痕模式禁用localStorge
-	
+
 	function isPrivateMode() {
-        try {
-            localStorage.test = 'test';
-            delete localStorage.test;
-            return false;
-        } catch (e) {
-            return true;
-        }
-    }
+		try {
+			localStorage.test = 'test';
+			delete localStorage.test;
+			return false;
+		} catch (e) {
+			return true;
+		}
+	}
+
+
+	const giftIdMap = {
+		"19999": "325233801525268480",
+		"9999": "325232177465593856",
+		"5228": "648933371117637632",
+		"5000": "266592614883344384",
+		"3000": "266592611095887872",
+		"2880": "266592635540291584",
+		"1500": "566341364751339520",
+		"1048": "691322274260520960",
+		"148": "721778264055287808",
+		"48": "517760052235145216",
+		"20": "266592591995027456",
+		"10": "266592613964791808",
+		"5": "266592588983517184"
+	};
+
+	const images = {
+		"5": "/mediasource/gift/0955be61-db0d-4f0e-b8e6-51997c4b36e2.png",
+		"10": "/mediasource/gift/1600744089790ItGW8WYXUT.png",
+		"20": "/mediasource/gift/16007442056948gPSmtv2qx.png",
+		"48": "/mediasource/gift/1601373212779S5y74wAZX7.png",
+		"148": "/backstage/2022/0415/cm862hidw54w1mx2kx12z41.png",
+		"1048": "/backstage/2022/0121/ft11889bxrh7an37jpjxoa2.png",
+		"3000": "/mediasource/gift/15553337023153ze5U4MA89.png",
+		"5000": "/backstage/2023/0815/vgm7b56j7hcfa4wx7bzxm6p.png",
+		"5228": "/mediasource/gift/1632647273359hRFrAIRrqE.png",
+		"1500": "/mediasource/gift/1612955900765VSyq32SQiS.png",
+		"2880": "/mediasource/gift/160126314343516DobN4LkC.png",
+		"9999": "/mediasource/gift/1555470980437y6m991Qn6E.png",
+		"19999": "/mediasource/gift/155547136419221BBECfH6X.png"
+	};
 
 	//登录前
 	loginForm.addEventListener("submit", async (e) => {
@@ -197,47 +236,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		return await response.json();
 	}
-	
-    // 存储账户信息到 LocalStorage
-    function storeAccountInfosToLocalStorage(accountInfos) {
-        if(privateMode){
-            const cookieValue = JSON.stringify(accountInfos);
-            document.cookie = `accountInfos=${encodeURIComponent(cookieValue)}; `;
-        }
-        else{
-            localStorage.setItem('accountInfos', JSON.stringify(accountInfos));
-        }
-    }
-    
-    // 从 LocalStorage 中读取账户信息
-    function getAccountInfosFromLocalStorage() {
-        try{
-            if(privateMode){
-                const cookies = document.cookie.split("; ");
-                for (const cookie of cookies) {
-                    const [name, value] = cookie.split("=");
-                    if (name === "accountInfos") {
-                        return JSON.parse(decodeURIComponent(value));
-                    }
-                }
-                return [];
-            }
-            else{
-                const storedAccountInfos = localStorage.getItem('accountInfos');
-                return storedAccountInfos ? JSON.parse(storedAccountInfos) : [];
-            }
-        }
-        catch (e){
-            return [];
-        }
-    }
+
+	// 存储账户信息到 LocalStorage
+	function storeAccountInfosToLocalStorage(accountInfos) {
+		if (privateMode) {
+			const cookieValue = JSON.stringify(accountInfos);
+			document.cookie = `accountInfos=${encodeURIComponent(cookieValue)}; `;
+		} else {
+			localStorage.setItem('accountInfos', JSON.stringify(accountInfos));
+		}
+	}
+
+	// 从 LocalStorage 中读取账户信息
+	function getAccountInfosFromLocalStorage() {
+		try {
+			if (privateMode) {
+				const cookies = document.cookie.split("; ");
+				for (const cookie of cookies) {
+					const [name, value] = cookie.split("=");
+					if (name === "accountInfos") {
+						return JSON.parse(decodeURIComponent(value));
+					}
+				}
+				return [];
+			} else {
+				const storedAccountInfos = localStorage.getItem('accountInfos');
+				return storedAccountInfos ? JSON.parse(storedAccountInfos) : [];
+			}
+		} catch (e) {
+			return [];
+		}
+	}
 
 	function getAccountInfo(accountId) {
 		const accountInfos = getAccountInfosFromLocalStorage();
 		const accountInfo = accountInfos.find(info => info.id == accountId);
 		return accountInfo || null;
 	}
-	
+
 	//更新选择器选项
 	function updateAccountSelector() {
 		accountSelect.innerHTML = "";
@@ -278,70 +314,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			selectedBalance.textContent = "";
 		}
 	}
-	
-    queryButton.addEventListener("click", async () => {
-		if (currentToken === "") {
-			alert("未登录");
-			return;
-		}
-
-		const sendToUserId = transferInput.value;
-		if (sendToUserId === "") {
-			alert("未输入对方ID");
-			return;
-		} 
-
-        const queryResponse = await fetchData("https://pocketapi.48.cn/user/api/v1/user/info/home", {
-            userId: parseInt(sendToUserId)
-        });
-
-        if (queryResponse.status === 200) {
-            const nickname = queryResponse.content.baseUserInfo.nickname;
-
-            const tempInput = document.createElement("input");
-            tempInput.value = nickname;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-
-            alert(`查询成功：${nickname}`);
-        } else {
-            alert(`查询失败：${queryResponse.message}`);
-        }
-    });
-    
-	const giftIdMap = {
-		"19999": "325233801525268480",
-		"9999": "325232177465593856",
-		"5228": "648933371117637632",
-		"5000": "266592614883344384",
-		"3000": "266592611095887872",
-		"2880": "266592635540291584",
-		"1500": "566341364751339520",
-		"1048": "691322274260520960",
-		"148": "721778264055287808",
-		"48": "517760052235145216",
-		"20": "266592591995027456",
-		"10": "266592613964791808",
-		"5": "266592588983517184"
-	};
-
-	const images = {
-		"5": "/mediasource/gift/0955be61-db0d-4f0e-b8e6-51997c4b36e2.png",
-		"10": "/mediasource/gift/1600744089790ItGW8WYXUT.png",
-		"20": "/mediasource/gift/16007442056948gPSmtv2qx.png",
-		"48": "/mediasource/gift/1601373212779S5y74wAZX7.png",
-		"148": "/backstage/2022/0415/cm862hidw54w1mx2kx12z41.png",
-		"1048": "/backstage/2022/0121/ft11889bxrh7an37jpjxoa2.png",
-		"3000": "/mediasource/gift/15553337023153ze5U4MA89.png",
-		"5000": "/backstage/2023/0815/vgm7b56j7hcfa4wx7bzxm6p.png",
-		"5228": "/mediasource/gift/1632647273359hRFrAIRrqE.png",
-		"1500": "/mediasource/gift/1612955900765VSyq32SQiS.png",
-		"2880": "/mediasource/gift/160126314343516DobN4LkC.png",
-		"9999": "/mediasource/gift/1555470980437y6m991Qn6E.png",
-		"19999": "/mediasource/gift/155547136419221BBECfH6X.png"
-	};
 
 	function updateTransferButtons() {
 		transferButtons.forEach(button => {
@@ -360,25 +332,28 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	async function transferMoney(giftId) {
+
 		if (currentToken === "") {
 			alert("未登录");
 			return;
 		}
 
-		const sendToUserId = transferInput.value;
-		if (sendToUserId === "") {
-			alert("未输入对方ID");
+		const liveId = liveSelect.value;
+
+		if (!liveId || !selectedCrm || !selectedUserId) {
+			alert("请选择一个直播");
 			return;
 		}
+
+		// 发送转账请求
 		const response = await fetchData("https://pocketapi.48.cn/gift/api/v1/gift/send", {
-			businessId: "1639431",
 			giftId: giftId,
-			sendToRoomId: "1672569",
+			businessId: liveId,
 			isPocketGift: 0,
+			crm: selectedCrm,
 			giftNum: 1,
-			acceptUserId: sendToUserId,
-			businessCode: 5,
-			token: currentToken
+			acceptUserId: selectedUserId,
+			businessCode: 0
 		});
 
 		if (response.status === 200) {
@@ -394,13 +369,49 @@ document.addEventListener("DOMContentLoaded", () => {
 				return info;
 			});
 
-					storeAccountInfosToLocalStorage(updatedAccountInfos);
-
-			alert("转账成功");
+			storeAccountInfosToLocalStorage(updatedAccountInfos);
+			alert(response.message);
 		} else {
-			alert(`转账失败${response.status}: ${response.message}`);
+			alert(`送礼失败：${response.status}: ${response.message}`);
 		}
 	}
+
+	deleteAccountButton.addEventListener("click", () => {
+		const selectedAccountId = accountSelect.value;
+
+		if (selectedAccountId) {
+			const accountInfos = getAccountInfosFromLocalStorage();
+			const updatedAccountInfos = accountInfos.filter(info => info.id !== selectedAccountId);
+			storeAccountInfosToLocalStorage(updatedAccountInfos);
+
+			updateAndSelect();
+		}
+	});
+
+	modifyNicknameButton.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+
+		const newNickname = nicknameInput.value;
+
+		if (!newNickname || newNickname === selectedNickname.textContent) {
+			alert("输入昵称为空或与原昵称相同。");
+			return;
+		}
+
+		const response = await fetchData("https://pocketapi.48.cn/user/api/v1/user/info/edit", {
+			key: "nickname",
+			value: newNickname
+		});
+
+		if (response.status === 200) {
+			alert("修改昵称成功，正在审核。");
+		} else {
+			alert(`修改昵称失败: ${response.message}`);
+		}
+	});
 
 	refreshBalanceButton.addEventListener("click", async () => {
 		if (currentToken === "") {
@@ -464,7 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 
 		const response = await fetchData("https://pocketapi.48.cn/user/api/v1/logout/user", {});
-		if (response.status === 200) {
+		if (response.status === 200 || response.status === 401004) {
 			// Remove account info from LocalStorage
 			const accountInfos = getAccountInfosFromLocalStorage();
 			const updatedAccountInfos = accountInfos.filter(info => info.token !== currentToken);
@@ -485,4 +496,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	updateAndSelect();
 	updateTransferButtons();
+
+
+	let selectedUserId = null; // 存储选中的 userId
+	let selectedCrm = null; // 存储选中的 crm
+
+	// 刷新按钮点击事件
+	refreshLiveButton.addEventListener("click", async () => {
+		// 发送获取直播列表的请求
+		const liveListResponse = await fetchData("https://pocketapi.48.cn/live/api/v1/live/getLiveList", {
+			groupId: 0,
+			debug: true,
+			next: 0,
+			record: false
+		});
+
+		if (liveListResponse.status !== 200) {
+			alert(`获取直播列表失败：${liveListResponse.status}`);
+			return;
+		}
+
+		// 清空旧的选项
+		liveSelect.innerHTML = "";
+
+		const liveList = liveListResponse.content.liveList;
+		if (Array.isArray(liveList) && liveList.length > 0) {
+			// 填充选择框
+			liveList.forEach((live, index) => {
+				const option = document.createElement("option");
+				option.value = live.liveId;
+				option.textContent = `${live.title} (${live.userInfo.nickname})`;
+				liveSelect.appendChild(option);
+			});
+		} else {
+			alert("没有可用的直播");
+		}
+	});
+
+	// 选择框选择事件
+	liveSelect.addEventListener("change", async () => {
+		const liveId = liveSelect.value;
+		if (!liveId) {
+			alert("未选择");
+			return;
+		}
+
+		// 发送获取直播信息的请求
+		const liveInfoResponse = await fetchData("https://pocketapi.48.cn/live/api/v1/live/getLiveOne", {
+			liveId: liveId
+		});
+
+		if (liveInfoResponse.status !== 200) {
+			alert(`获取直播信息失败：${liveInfoResponse.message}`);
+			return;
+		}
+
+		// 存储 userId 和 crm
+		selectedUserId = liveInfoResponse.content.user.userId;
+		selectedCrm = liveInfoResponse.content.crm;
+	});
 });
