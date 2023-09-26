@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	const refreshLiveButton = document.getElementById("refreshLiveButton");
 	const transferButtons = document.querySelectorAll(".transfer-button");
 
+	const downloadButton = document.getElementById("downloadButton");
+	const chartContainer = document.getElementById("chartContainer");
+
 	var currentToken = ""; //此变量只由updateSelectedAccount更改
 	var privateMode = isPrivateMode(); //iOS Safari无痕模式禁用localStorge
 
@@ -554,5 +557,101 @@ document.addEventListener("DOMContentLoaded", () => {
 		// 存储 userId 和 crm
 		selectedUserId = liveInfoResponse.content.user.userId;
 		selectedCrm = liveInfoResponse.content.crm;
+	});
+
+	downloadButton.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+
+		let allUserData = [];
+		let beginLimit = 0;
+		let responseSize = 20;
+
+		while (responseSize > 0) {
+			const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question/list", {
+				status: 0,
+				beginLimit: beginLimit,
+				memberId: "",
+				limit: 20
+			});
+
+			if (response.status === 200) {
+				const userData = response.content;
+				allUserData = allUserData.concat(userData);
+				responseSize = userData.length;
+				beginLimit += 20;
+			} else {
+				alert(`下载失败: ${response.message}`);
+				break;
+			}
+		}
+
+		if (allUserData.length > 0) {
+			// 统计翻牌来源的数量和总金额
+			const sourceData = {};
+			allUserData.forEach(card => {
+				if (card.status == 2) {
+					const source = card.baseUserInfo.starName;
+					const cost = card.cost;
+					if (!sourceData[source]) {
+						sourceData[source] = {
+							count: 1,
+							totalCost: cost
+						};
+					} else {
+						sourceData[source].count++;
+						sourceData[source].totalCost += cost;
+					}
+				}
+			});
+
+			const sortedSourceData = Object.entries(sourceData)
+				.sort((a, b) => b[1].count - a[1].count);
+
+			// 创建柱状图
+			chartContainer.innerHTML = "";
+			sortedSourceData.forEach(([source, data]) => {
+				const barContainer = document.createElement("div");
+				barContainer.style.display = "flex";
+				barContainer.style.alignItems = "flex-end";
+				barContainer.style.marginBottom = "5px";
+
+				const bar = document.createElement("div");
+				bar.style.width = `${data.count * 10}px`;
+				bar.style.height = "20px";
+				bar.style.backgroundColor = "lightblue";
+				bar.style.borderRadius = "10px";
+
+				const label = document.createElement("span");
+				label.textContent = `${source} (${data.count} / ${data.totalCost} 鸡腿)`;
+				label.style.marginLeft = "5px";
+
+				barContainer.appendChild(bar);
+				barContainer.appendChild(label);
+
+				chartContainer.appendChild(barContainer);
+			});
+
+
+			// 创建 JSON 文件并下载
+			const blob = new Blob([JSON.stringify(allUserData)], {
+				type: "application/json"
+			});
+
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `${selectedId.textContent}-${selectedNickname.textContent}.json`;
+			document.body.appendChild(a);
+
+			a.click();
+
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(a);
+		} else {
+			alert("未找到数据");
+		}
 	});
 });
