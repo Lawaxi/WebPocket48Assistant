@@ -104,3 +104,21 @@ select {
     font-size: 12px;
     color: #888;
 }
+
+.github-link {
+    text-align: center;
+    align-items: center;
+    padding: 10px 0;
+    background-color: #f0f0f0;
+}
+
+.github-link a {
+    text-decoration: none;
+    color: #333;
+}
+
+.github-link img {
+    width: 24px;
+    height: auto;
+    background-color: transparent;
+}
