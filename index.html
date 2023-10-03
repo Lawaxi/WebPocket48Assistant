@@ -1,74 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="icon" href="favicon.ico" type="image/x-icon">
-		<title>口袋48助手</title>
-		<link rel="stylesheet" href="style.css"> <!-- Link to the CSS file -->
-	</head>
-	<body>
-		<div class="container">
-			<h1>登录</h1>
-			<form id="loginForm">
-				<label for="mobile">账号：</label>
-				<input type="text" id="mobile" placeholder="请输入账号" required>
-				<label for="pwd">密码：</label>
-				<input type="password" id="pwd" placeholder="请输入密码" required>
-				<button type="submit">登录</button>
-			</form>
-			<h1>或 使用 Token 登录</h1>
-			<form id="tokenLoginForm">
-				<label for="tokenInput">Token：</label>
-				<input type="text" id="tokenInput" placeholder="请输入 Token" required>
-				<button type="submit" id="tokenLoginButton">用 Token 登录</button>
-			</form>
-			<hr>
-			<h2>已登录账号</h2>
-			<p id="privateModeMessage" class="private-mode-message">无痕模式下无法保存登录信息，关闭浏览器会清空，可以复制登录 Token 到其他地方</p>
-			<select id="accountSelect"></select>
-			<button id="deleteAccountButton">删除当前项</button>
-			<div>
-				<p>已选择账号: <span id="selectedNickname"></span> (ID: <span id="selectedId"></span>)</p>
-				<p>余额: <span id="selectedBalance"></span>
-				</p>
-				<input type="text" id="nicknameInput" placeholder="输入新昵称">
-				<button id="modifyNicknameButton">修改昵称</button>
-			</div>
-			<div>
-				<button id="refreshBalanceButton">刷新余额</button>
-				<button id="copyIdButton">复制 ID</button>
-				<button id="copyTokenButton">复制 Token</button>
-				<button id="logoutButton">退出登录</button>
-			</div>
-			<h2>直播送礼</h2>
-			<select id="liveSelect">
-				<option value="">请点击按钮刷新直播列表</option>
-			</select>
-			<button id="refreshLiveButton">刷新直播列表</button>
-			<p>点击礼物按钮直接送礼：</p>
-			<div>
-				<button class="transfer-button" data-gift-id="5">5</button>
-				<button class="transfer-button" data-gift-id="10">10</button>
-				<button class="transfer-button" data-gift-id="20">20</button>
-				<button class="transfer-button" data-gift-id="48">48</button>
-				<button class="transfer-button" data-gift-id="148">148</button>
-				<button class="transfer-button" data-gift-id="1048">1048</button>
-				<button class="transfer-button" data-gift-id="1500">1500</button>
-				<button class="transfer-button" data-gift-id="2880">2880</button>
-				<button class="transfer-button" data-gift-id="3000">3000</button>
-				<button class="transfer-button" data-gift-id="5000">5000</button>
-				<button class="transfer-button" data-gift-id="5228">5228</button>
-				<button class="transfer-button" data-gift-id="9999">9999</button>
-				<button class="transfer-button" data-gift-id="19999">19999</button>
-			</div>
-			<h2>翻牌列表</h2>
-			<button id="downloadButton" style="margin-bottom: 20px;">下载</button>
-			<div id="chartContainer"></div>
-			<div class="disclaimer">
-				<p>This assistant is developed based on the Pocket48 app. For more features, please use the official authentic app. If there are any copyright concerns, we will remove the content promptly.</p>
-			</div>
-		</div>
-		<script src="script.js"></script> <!-- Link to the JavaScript file -->
-	</body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <title>口袋48助手</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Link to the CSS file -->
+</head>
+
+<body>
+  <div class="container">
+    <h1>登录</h1>
+    <form id="loginForm">
+      <label for="mobile">账号：</label>
+      <input type="text" id="mobile" placeholder="请输入账号" required>
+      <label for="pwd">密码：</label>
+      <input type="password" id="pwd" placeholder="请输入密码" required>
+      <button type="submit">登录</button>
+    </form>
+    <h1>或 短信登录</h1>
+    <form id="smsLoginForm">
+      <label for="mobileInput">手机号：</label>
+      <div class="input-row">
+        <input id="areaCodeInput" class="area-code-input" type="text" placeholder="区号" value="86" required>
+        <input id="mobileInput" class="mobile-input" type="text" placeholder="手机号" required>
+      </div>
+      <button type="submit">发送验证码</button>
+    </form>
+    <h1>或 使用 Token 登录</h1>
+    <form id="tokenLoginForm">
+      <label for="tokenInput">Token：</label>
+      <input type="text" id="tokenInput" placeholder="请输入 Token" required>
+      <button type="submit" id="tokenLoginButton">用 Token 登录</button>
+    </form>
+    <hr>
+    <h2>已登录账号</h2>
+    <p id="privateModeMessage" class="private-mode-message">无痕模式下无法保存登录信息，关闭浏览器会清空，可以复制登录 Token 到其他地方</p>
+    <select id="accountSelect">
+    </select>
+    <button id="deleteAccountButton">删除当前项</button>
+    <div>
+      <p>已选择账号:
+        <span id="selectedNickname">
+        </span>(ID:
+        <span id="selectedId">
+        </span>)</p>
+      <p>余额:
+        <span id="selectedBalance">
+        </span>
+      </p>
+      <input type="text" id="nicknameInput" placeholder="输入新昵称">
+      <button id="modifyNicknameButton">修改昵称</button>
+    </div>
+    <div>
+      <button id="refreshBalanceButton">刷新余额</button>
+      <button id="copyIdButton">复制 ID</button>
+      <button id="copyTokenButton">复制 Token</button>
+      <button id="logoutButton">退出登录</button>
+    </div>
+    <h2>直播送礼</h2>
+    <select id="liveSelect">
+      <option value="">请点击按钮刷新直播列表</option>
+    </select>
+    <button id="refreshLiveButton">刷新直播列表</button>
+    <p>点击礼物按钮直接送礼：</p>
+    <div>
+      <button class="transfer-button" data-gift-id="5">5</button>
+      <button class="transfer-button" data-gift-id="10">10</button>
+      <button class="transfer-button" data-gift-id="20">20</button>
+      <button class="transfer-button" data-gift-id="48">48</button>
+      <button class="transfer-button" data-gift-id="148">148</button>
+      <button class="transfer-button" data-gift-id="1048">1048</button>
+      <button class="transfer-button" data-gift-id="1500">1500</button>
+      <button class="transfer-button" data-gift-id="2880">2880</button>
+      <button class="transfer-button" data-gift-id="3000">3000</button>
+      <button class="transfer-button" data-gift-id="5000">5000</button>
+      <button class="transfer-button" data-gift-id="5228">5228</button>
+      <button class="transfer-button" data-gift-id="9999">9999</button>
+      <button class="transfer-button" data-gift-id="19999">19999</button>
+    </div>
+    <h2>翻牌列表</h2>
+    <button id="downloadButton" style="margin-bottom: 20px;">下载</button>
+    <div id="chartContainer">
+    </div>
+    <div class="disclaimer">
+      <p>This assistant is developed based on the Pocket48 app. For more features, please use the official authentic app. If there are any copyright concerns, we will remove the content promptly.</p>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <!-- Link to the JavaScript file -->
+</body>
+
 </html>

@@ -1,6 +1,7 @@
 // script.js
 document.addEventListener("DOMContentLoaded", () => {
 	const loginForm = document.getElementById("loginForm");
+	const smsLoginForm = document.getElementById("smsLoginForm");
 	const accountSelect = document.getElementById("accountSelect");
 	const deleteAccountButton = document.getElementById("deleteAccountButton");
 	const selectedNickname = document.getElementById("selectedNickname");
@@ -75,139 +76,128 @@ document.addEventListener("DOMContentLoaded", () => {
 			.value;
 		const pwd = document.getElementById("pwd")
 			.value;
-		fetch("https://pocketapi.48.cn/user/api/v1/login/app/mobile", {
-				method: "POST",
-				headers: {
-					"Host": "pocketapi.48.cn",
-					"Content-Type": "application/json;charset=utf-8",
-					"Content-Length": "153",
-					"Accept": "*/*",
-					"Accept-Encoding": "gzip, deflate, br",
-					"Connection": "keep-alive",
-					"pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
-					"User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
-					"Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
-					"appInfo": JSON.stringify({
-						"vendor": "apple",
-						"deviceId": "4581AA0C-6E65-47AC-8763-03674049AC53",
-						"appVersion": "7.1.0",
-						"appBuild": "23051902",
-						"osVersion": "16.6.0",
-						"osType": "ios",
-						"deviceName": "iPad Air (4th generation)",
-						"os": "ios"
-					})
-				},
-				body: JSON.stringify({
-					mobile,
-					pwd
-				})
-			})
-			.then(response => response.json())
-			.then(response => {
 
-				if (response.status === 200) {
-					const {
-						content
-					} = response;
+		const loginResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/login/app/mobile", {
+			mobile,
+			pwd
+		});
 
-					// Store account info in LocalStorage
-					const accountInfo = {
-						token: content.token,
-						nickname: content.userInfo.nickname,
-						id: content.userInfo.userId,
-						balance: content.userInfo.money
-					};
-					const accountInfos = getAccountInfosFromLocalStorage();
-					accountInfos.push(accountInfo);
-					storeAccountInfosToLocalStorage(accountInfos);
+		document.getElementById("mobile")
+			.value = "";
+		if (saveLoginReturns(loginResponse)) {
+			document.getElementById("pwd")
+				.value = "";
+		}
+	});
 
-					updateAccountSelector();
-					const newOption = accountSelect.querySelector(`option[value="${accountInfo.id}"]`);
-					if (newOption) {
-						newOption.selected = true;
-					}
-					updateSelectedAccount(accountInfo);
-					alert("已登录");
-				} else {
-					alert(`登录失败${response.status}: ${response.message}`);
+	smsLoginForm.addEventListener("submit", async (e) => {
+		e.preventDefault();
+
+		const areaCode = document.getElementById("areaCodeInput")
+			.value;
+		const mobile = document.getElementById("mobileInput")
+			.value;
+
+		// 发送验证码请求
+		const sendCodeResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/sms/send2", {
+			mobile: mobile,
+			area: areaCode,
+		});
+
+		if (sendCodeResponse.status === 200) {
+			// 弹出输入验证码的提示框
+			const code = prompt("请输入验证码：");
+
+			if (code) {
+				// 发送验证码登录请求
+				const loginResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/login/app/mobile/code", {
+					mobile: mobile,
+					code: code,
+				});
+
+				document.getElementById("areaCodeInput")
+					.value = "86";
+				if (saveLoginReturns(loginResponse)) {
+					document.getElementById("mobileInput")
+						.value = "";
 				}
-
-				document.getElementById("mobile")
-					.value = "";
-				document.getElementById("pwd")
-					.value = "";
-			});
+			} else {
+				alert("请输入验证码");
+			}
+		} else {
+			alert(`发送验证码失败: ${sendCodeResponse.status}`);
+		}
 	});
 
 	tokenLoginForm.addEventListener("submit", async (e) => {
 		e.preventDefault();
 		const token = tokenInput.value;
 
-		fetch("https://pocketapi.48.cn/user/api/v1/user/info/reload", {
-				method: "POST",
-				headers: {
-					"Host": "pocketapi.48.cn",
-					"Content-Type": "application/json;charset=utf-8",
-					"Content-Length": "153",
-					"Accept": "*/*",
-					"Accept-Encoding": "gzip, deflate, br",
-					"Connection": "keep-alive",
-					"pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
-					"User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
-					"Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
-					"appInfo": JSON.stringify({
-						"vendor": "apple",
-						"deviceId": "4581AA0C-6E65-47AC-8763-03674049AC53",
-						"appVersion": "7.1.0",
-						"appBuild": "23051902",
-						"osVersion": "16.6.0",
-						"osType": "ios",
-						"deviceName": "iPad Air (4th generation)",
-						"os": "ios"
-					}),
-					"token": token
-				},
-				body: "{}"
-			})
-			.then(response => response.json())
-			.then(response => {
+		const response = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/user/info/reload", {});
 
+		if (response.status === 200) {
+			const {
+				content
+			} = response;
 
-				if (response.status === 200) {
-					const {
-						content
-					} = response;
+			// Store account info in LocalStorage
+			const accountInfo = {
+				token: token,
+				nickname: content.nickname,
+				id: content.userId,
+				balance: content.money
+			};
+			if (getAccountInfo(accountInfo.id) !== null) {
+				alert("登录信息中存在相同ID账号");
+				return;
+			}
+			const accountInfos = getAccountInfosFromLocalStorage();
+			accountInfos.push(accountInfo);
+			storeAccountInfosToLocalStorage(accountInfos);
 
-					// Store account info in LocalStorage
-					const accountInfo = {
-						token: token,
-						nickname: content.nickname,
-						id: content.userId,
-						balance: content.money
-					};
-					if (getAccountInfo(accountInfo.id) !== null) {
-						alert("登录信息中存在相同ID账号");
-						return;
-					}
-					const accountInfos = getAccountInfosFromLocalStorage();
-					accountInfos.push(accountInfo);
-					storeAccountInfosToLocalStorage(accountInfos);
+			updateAccountSelector();
+			const newOption = accountSelect.querySelector(`option[value="${accountInfo.id}"]`);
+			if (newOption) {
+				newOption.selected = true;
+			}
+			updateSelectedAccount(accountInfo);
+			alert("已登录");
+		} else {
+			alert(`信息获取失败${response.status}: ${response.message}`);
+		}
 
-					updateAccountSelector();
-					const newOption = accountSelect.querySelector(`option[value="${accountInfo.id}"]`);
-					if (newOption) {
-						newOption.selected = true;
-					}
-					updateSelectedAccount(accountInfo);
-					alert("已登录");
-				} else {
-					alert(`信息获取失败${response.status}: ${response.message}`);
-				}
-
-				tokenInput.value = "";
-			});
+		tokenInput.value = "";
 	});
+
+	async function fetchDataBeforeLogin(url, data) {
+		const response = await fetch(url, {
+			method: "POST",
+			headers: {
+				"Host": "pocketapi.48.cn",
+				"Content-Type": "application/json;charset=utf-8",
+				"Content-Length": "153",
+				"Accept": "*/*",
+				"Accept-Encoding": "gzip, deflate, br",
+				"Connection": "keep-alive",
+				"pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
+				"User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
+				"Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
+				"appInfo": JSON.stringify({
+					"vendor": "apple",
+					"deviceId": "4581AA0C-6E65-47AC-8763-03674049AC53",
+					"appVersion": "7.1.0",
+					"appBuild": "23051902",
+					"osVersion": "16.6.0",
+					"osType": "ios",
+					"deviceName": "iPad Air (4th generation)",
+					"os": "ios"
+				})
+			},
+			body: JSON.stringify(data)
+		});
+
+		return await response.json();
+	}
 
 	async function fetchData(url, data) {
 		const response = await fetch(url, {
@@ -332,6 +322,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			button.addEventListener("click", () => transferMoney(giftIdMap[dataId]));
 		});
+	}
+
+	function saveLoginReturns(response) {
+		if (response.status === 200) {
+			const {
+				content
+			} = response;
+
+			// Store account info in LocalStorage
+			const accountInfo = {
+				token: content.token,
+				nickname: content.userInfo.nickname,
+				id: content.userInfo.userId,
+				balance: content.userInfo.money
+			};
+			const accountInfos = getAccountInfosFromLocalStorage();
+			accountInfos.push(accountInfo);
+			storeAccountInfosToLocalStorage(accountInfos);
+
+			updateAccountSelector();
+			const newOption = accountSelect.querySelector(`option[value="${accountInfo.id}"]`);
+			if (newOption) {
+				newOption.selected = true;
+			}
+			updateSelectedAccount(accountInfo);
+			alert("已登录");
+			return true;
+		} else {
+			alert(`登录失败${response.status}: ${response.message}`);
+			return false;
+		}
 	}
 
 	async function transferMoney(giftId) {

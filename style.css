@@ -48,6 +48,20 @@ button:hover {
     background-color: #1E88E5;
 }
 
+.input-row {
+    display: flex;
+    align-items: center;
+}
+
+.area-code-input {
+    width: 50px;
+    margin-right: 10px;
+}
+
+.mobile-input {
+    flex: 1;
+}
+
 .private-mode-message {
     display: none;
     color: #999;
