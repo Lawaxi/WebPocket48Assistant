@@ -83,6 +83,7 @@ input {
 
 button {
     padding: 10px;
+    margin-bottom: 10px;
     background-color: #2196F3;
     color: white;
     border: none;
@@ -90,8 +91,13 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+button:hover:not(:disabled) {
     background-color: #1E88E5;
+}
+
+button:disabled {
+    background-color: #d0d0d0;
+    cursor: not-allowed;
 }
 
 .input-row {
@@ -108,11 +114,12 @@ button:hover {
     flex: 1;
 }
 
-.private-mode-message {
+.sign-text{
     display: none;
     color: #999;
     font-size: 12px;
     margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 select {
@@ -122,25 +129,10 @@ select {
     outline: none;
 }
 
-.transfer-button {
-    align-items: center;
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 .transfer-button img {
     width: 24px;
     height: 24px;
     margin-right: 10px;
-}
-
-.transfer-button:hover {
-    background-color: #1E88E5;
 }
 
 .disclaimer {

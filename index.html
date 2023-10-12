@@ -12,7 +12,7 @@
 <body>
   <div class="container">
       <p>已登录账号：</p>
-      <p id="privateModeMessage" class="private-mode-message">无痕模式下无法保存登录信息，关闭浏览器会清空，可以复制登录 Token 到其他地方</p>
+      <p id="privateModeMessage" class="sign-text">无痕模式下无法保存登录信息，关闭浏览器会清空，可以复制登录 Token 到其他地方</p>
     <select id="accountSelect">
     </select>
     <button id="deleteAccountButton">删除当前项</button>
@@ -126,7 +126,12 @@
     <!-- 翻牌列表 -->
     <section id="answerList" class="tab-content">
     <h2>翻牌列表</h2>
-      <button id="downloadButton" style="margin-bottom: 20px;">下载</button>
+    <div>
+      <button id="getAnswerButton" style="display:none;">获取</button>
+      <button id="arrangeAnswerButton">整理全部</button>
+      <button id="downloadAnswerButton" disabled title="请先使用整理全部翻牌功能">以 json 下载</button>
+    </div>
+    <p id="loadingMessage" class="sign-text">正在获取，请稍候...</p>
     <div id="chartContainer">
         </div>
     </section>

@@ -25,7 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	const transferButtons = document.querySelectorAll(".transfer-button");
 
     //翻牌列表
-	const downloadButton = document.getElementById("downloadButton");
+	const getAnswerButton = document.getElementById("getAnswerButton");
+	const arrangeAnswerButton = document.getElementById("arrangeAnswerButton");
+	const downloadAnswerButton = document.getElementById("downloadAnswerButton");
 	const chartContainer = document.getElementById("chartContainer");
 	
 	//翻牌
@@ -142,9 +144,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	tokenLoginForm.addEventListener("submit", async (e) => {
 		e.preventDefault();
-		const token = tokenInput.value;
-
-		const response = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/user/info/reload", {});
+		const ltoken = tokenInput.value;
+        var ctoken = currentToken;
+        currentToken = ltoken;
+		const response = await fetchData("https://pocketapi.48.cn/user/api/v1/user/info/reload", {});
+		currentToken = ctoken;
 
 		if (response.status === 200) {
 			const {
@@ -153,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			// Store account info in LocalStorage
 			const accountInfo = {
-				token: token,
+				token: ltoken,
 				nickname: content.nickname,
 				id: content.userId,
 				balance: content.money
@@ -415,7 +419,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (selectedAccountId) {
 			const accountInfos = getAccountInfosFromLocalStorage();
-			const updatedAccountInfos = accountInfos.filter(info => info.id !== selectedAccountId);
+			const updatedAccountInfos = accountInfos.filter(info => info.id != selectedAccountId);
+			//info.id为数值 selectedAccountId为字符串
 			storeAccountInfosToLocalStorage(updatedAccountInfos);
 
 			updateAndSelect();
@@ -598,12 +603,21 @@ document.addEventListener("DOMContentLoaded", () => {
 		selectedCrm = liveInfoResponse.content.crm;
 	});
 
-/*  翻牌下载  */
-	downloadButton.addEventListener("click", async () => {
+/*  翻牌列表  */
+    var allAnswer = "";
+    
+	getAnswerButton.addEventListener("click", async () => {
+	});
+    
+	arrangeAnswerButton.addEventListener("click", async () => {
 		if (currentToken === "") {
 			alert("未登录");
 			return;
 		}
+		
+		const loadingMessage = document.getElementById("loadingMessage");
+        loadingMessage.style.display = "block";
+        downloadAnswerButton.disabled = true;
 
 		let allUserData = [];
 		let beginLimit = 0;
@@ -628,6 +642,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 		}
 
+       loadingMessage.style.display = "none";
+       
 		if (allUserData.length > 0) {
 			// 统计翻牌来源的数量和总金额
 			const sourceData = {};
@@ -673,10 +689,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 				chartContainer.appendChild(barContainer);
 			});
+		} else {
+			alert("无翻牌");
+		}
 
-
-			// 创建 JSON 文件并下载
-			const blob = new Blob([JSON.stringify(allUserData)], {
+        allAnswer = JSON.stringify(allUserData);
+        downloadAnswerButton.disabled = false;
+	});
+	
+	downloadAnswerButton.addEventListener("click", async () => {
+			const blob = new Blob([allAnswer], {
 				type: "application/json"
 			});
 
@@ -690,9 +712,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			window.URL.revokeObjectURL(url);
 			document.body.removeChild(a);
-		} else {
-			alert("未找到数据");
-		}
 	});
 
 /*  翻牌  */
