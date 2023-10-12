@@ -16,6 +16,52 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.tabs {
+    list-style: none;
+    display: flex;
+    border-radius: 10px 10px 0 0;
+    padding: 10px 0;
+}
+
+/* 样式化标签链接 */
+.tab-title {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #999;
+    text-align: center;
+    position: relative;
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.tab-title {
+    border-bottom: 2px solid #d0d0d0;
+}
+
+.tab-title a {
+    color: #d0d0d0;
+    text-decoration: none;
+}
+
+.tab-title.active, .tab-title:hover{
+    border-bottom: 2px solid #2196F3;
+}
+
+.tab-title.active a, .tab-title:hover a {
+    color: #2196F3;
+}
+
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 form {
     display: flex;
     flex-direction: column;
@@ -105,20 +151,6 @@ select {
     color: #888;
 }
 
-.github-link {
-    text-align: center;
-    align-items: center;
-    padding: 10px 0;
-    background-color: #f0f0f0;
-}
-
-.github-link a {
-    text-decoration: none;
-    color: #333;
-}
-
-.github-link img {
-    width: 24px;
-    height: auto;
-    background-color: transparent;
+.disclaimer a{
+    color: #d0d0d0;
 }

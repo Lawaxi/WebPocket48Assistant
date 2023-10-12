@@ -16,15 +16,26 @@ document.addEventListener("DOMContentLoaded", () => {
 	const copyTokenButton = document.getElementById("copyTokenButton");
 	const logoutButton = document.getElementById("logoutButton");
 
+	var currentToken = ""; //此变量只由updateSelectedAccount更改
+	var privateMode = isPrivateMode(); //iOS Safari无痕模式禁用localStorge
+
+    //直播送礼
 	const liveSelect = document.getElementById("liveSelect");
 	const refreshLiveButton = document.getElementById("refreshLiveButton");
 	const transferButtons = document.querySelectorAll(".transfer-button");
 
+    //翻牌列表
 	const downloadButton = document.getElementById("downloadButton");
 	const chartContainer = document.getElementById("chartContainer");
-
-	var currentToken = ""; //此变量只由updateSelectedAccount更改
-	var privateMode = isPrivateMode(); //iOS Safari无痕模式禁用localStorge
+	
+	//翻牌
+	const opponentIdInput = document.getElementById("opponentId");
+    const answerTypeSelect = document.getElementById("answerType");
+    const typeSelect = document.getElementById("type");
+    const priceInput = document.getElementById("price");
+    const contentTextarea = document.getElementById("content");
+    const askQuestionButton = document.getElementById("askQuestion");
+    let cardPrices = {};
 
 	function isPrivateMode() {
 		try {
@@ -183,13 +194,13 @@ document.addEventListener("DOMContentLoaded", () => {
 				"User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
 				"Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
 				"appInfo": JSON.stringify({
-					"vendor": "apple",
-					"deviceId": "4581AA0C-6E65-47AC-8763-03674049AC53",
+					"vendor": "Huawei",
+					"deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
 					"appVersion": "7.1.0",
 					"appBuild": "23051902",
 					"osVersion": "16.6.0",
 					"osType": "ios",
-					"deviceName": "iPad Air (4th generation)",
+					"deviceName": "Huawei",
 					"os": "ios"
 				})
 			},
@@ -213,13 +224,13 @@ document.addEventListener("DOMContentLoaded", () => {
 				"User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
 				"Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
 				"appInfo": JSON.stringify({
-					"vendor": "apple",
-					"deviceId": "4581AA0C-6E65-47AC-8763-03674049AC53",
+					"vendor": "Huawei",
+					"deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
 					"appVersion": "7.1.0",
 					"appBuild": "23051902",
 					"osVersion": "16.6.0",
 					"osType": "ios",
-					"deviceName": "iPad Air (4th generation)",
+					"deviceName": "Huawei",
 					"os": "ios"
 				}),
 				"token": currentToken
@@ -356,7 +367,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	async function transferMoney(giftId) {
-
 		if (currentToken === "") {
 			alert("未登录");
 			return;
@@ -492,7 +502,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	logoutButton.addEventListener("click", async () => {
-
 		if (currentToken === "") {
 			alert("未登录");
 			return;
@@ -522,12 +531,15 @@ document.addEventListener("DOMContentLoaded", () => {
 	updateTransferButtons();
 
 
-	let selectedUserId = null; // 存储选中的 userId
-	let selectedCrm = null; // 存储选中的 crm
+	let selectedUserId = null; 
+	let selectedCrm = null; 
 
-	// 刷新按钮点击事件
 	refreshLiveButton.addEventListener("click", async () => {
-		// 发送获取直播列表的请求
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
 		const liveListResponse = await fetchData("https://pocketapi.48.cn/live/api/v1/live/getLiveList", {
 			groupId: 0,
 			debug: true,
@@ -557,8 +569,14 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	});
 
+/*  直播送礼  */
 	// 选择框选择事件
 	liveSelect.addEventListener("change", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
 		const liveId = liveSelect.value;
 		if (!liveId) {
 			alert("未选择");
@@ -580,6 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		selectedCrm = liveInfoResponse.content.crm;
 	});
 
+/*  翻牌下载  */
 	downloadButton.addEventListener("click", async () => {
 		if (currentToken === "") {
 			alert("未登录");
@@ -675,4 +694,75 @@ document.addEventListener("DOMContentLoaded", () => {
 			alert("未找到数据");
 		}
 	});
+
+/*  翻牌  */
+	document.getElementById("getCardPrice").addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
+        const opponentId = opponentIdInput.value;
+        const requestBody = { "memberId": opponentId };
+
+        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v2/custom/index", requestBody);
+
+        if (response && response.status === 200) {
+            cardPrices = response.content.customs;
+            alert("翻牌价格获取成功");
+            calculatePrice();
+        } else {
+            alert(`获取失败: ${response.message}`);
+        }
+    });
+
+    function calculatePrice() {
+        const answerType = answerTypeSelect.value;
+        const type = typeSelect.value;
+
+        for (const price of cardPrices) {
+            if (price.answerType === parseInt(answerType)) {
+                if (type === "1") {
+                    priceInput.value = price.normalCost;
+                } else if (type === "2") {
+                    priceInput.value = price.anonymityCost;
+                } else if (type === "3") {
+                    priceInput.value = price.privateCost;
+                }
+                break;
+            }
+        }
+    }
+
+    answerTypeSelect.addEventListener("change", calculatePrice);
+    typeSelect.addEventListener("change", calculatePrice);
+
+    askQuestionButton.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+        
+        const opponentId = opponentIdInput.value;
+        const content = contentTextarea.value;
+        const answerType = answerTypeSelect.value;
+        const type = typeSelect.value;
+        const cost = priceInput.value;
+
+        const requestBody = {
+            "memberId": parseInt(opponentId),
+            "content": content,
+            "type": parseInt(type),
+            "cost": cost,
+            "answerType": parseInt(answerType)
+        };
+
+        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question", requestBody);
+
+        if (response && response.status === 200) {
+            alert("提问成功");
+        } else {
+            alert(`提问失败: ${response.message}`);
+        }
+    });
 });
