@@ -972,30 +972,34 @@ document.addEventListener("DOMContentLoaded", () => {
 				.sort((a, b) => b[1].count - a[1].count);
 
 			// 创建柱状图
-			chartContainer.innerHTML = "";
-			sortedSourceData.forEach(([source, data]) => {
-				const barContainer = document.createElement("div");
-				barContainer.style.display = "flex";
-				barContainer.style.alignItems = "flex-end";
-				barContainer.style.marginBottom = "5px";
-
-				const bar = document.createElement("div");
-				bar.style.width = `${data.count * 10}px`;
-				bar.style.height = "20px";
-				bar.style.backgroundColor = "lightblue";
-				bar.style.borderRadius = "10px";
-
-				const label = document.createElement("span");
-				label.textContent = `${source} (${data.count} / ${data.totalCost} 鸡腿)`;
-				label.style.marginLeft = "5px";
-
-				barContainer.appendChild(bar);
-				barContainer.appendChild(label);
-
-				chartContainer.appendChild(barContainer);
-			});
+			if(sortedSourceData.length){
+    			chartContainer.innerHTML = "";
+    			sortedSourceData.forEach(([source, data]) => {
+    				const barContainer = document.createElement("div");
+    				barContainer.style.display = "flex";
+    				barContainer.style.alignItems = "flex-end";
+    				barContainer.style.marginBottom = "5px";
+    
+    				const bar = document.createElement("div");
+    				bar.style.width = `${data.count * 10}px`;
+    				bar.style.height = "20px";
+    				bar.style.backgroundColor = "lightblue";
+    				bar.style.borderRadius = "10px";
+    
+    				const label = document.createElement("span");
+    				label.textContent = `${source} (${data.count} / ${data.totalCost} 鸡腿)`;
+    				label.style.marginLeft = "5px";
+    
+    				barContainer.appendChild(bar);
+    				barContainer.appendChild(label);
+    
+    				chartContainer.appendChild(barContainer);
+    			});
+			}else{
+    			chartContainer.innerHTML = "无已翻翻牌";
+			}
 		} else {
-			alert("无翻牌");
+			alert("无翻牌记录");
 		}
 
         allAnswer = JSON.stringify(allUserData);
@@ -1003,19 +1007,19 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 	
 	downloadAnswerButton.addEventListener("click", async () => {
-			const blob = new Blob([allAnswer], {
-				type: "application/json"
-			});
+		const blob = new Blob([allAnswer], {
+			type: "application/json"
+		});
 
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = `${selectedId.textContent}-${selectedNickname.textContent}.json`;
-			document.body.appendChild(a);
+		const url = window.URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = `${selectedId.textContent}-${selectedNickname.textContent}.json`;
+		document.body.appendChild(a);
 
-			a.click();
+		a.click();
 
-			window.URL.revokeObjectURL(url);
-			document.body.removeChild(a);
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
 	});
 });
