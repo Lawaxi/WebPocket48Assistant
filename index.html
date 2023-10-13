@@ -127,9 +127,16 @@
     <section id="answerList" class="tab-content">
     <h2>翻牌列表</h2>
     <div>
-      <button id="getAnswerButton" style="display:none;">获取</button>
+      <button id="getAnswerButton">获取</button>
       <button id="arrangeAnswerButton">整理全部</button>
       <button id="downloadAnswerButton" disabled title="请先使用整理全部翻牌功能">以 json 下载</button>
+    </div>
+    <div id="answerListContainer"></div>
+    <input type="file" id="fileInput" style="display: none" accept=".json">
+    <div>
+        <button id="upPage" class="page-button" disabled>上一页</button>
+        <button id="downPage" class="page-button" disabled>下一页</button>
+        <button id="uploadAnswerList" class="page-button">读取本地翻牌列表</button>
     </div>
     <p id="loadingMessage" class="sign-text">正在获取，请稍候...</p>
     <div id="chartContainer">
@@ -137,10 +144,11 @@
     </section>
 
     <div class="disclaimer">
-      <p>This assistant is developed based on the Pocket48 app. For more features, please use the official authentic app. If there are any copyright concerns, we will remove the content promptly. 
-      <a href="https://github.com/Lawaxi/WebPocket48Assistant" target="_blank">
+        <p>本网站仅提供前端，在您设备本地运行，不会获取您的任何数据，并在 <a href="https://github.com/Lawaxi/WebPocket48Assistant" target="_blank">
         Lawaxi/WebPocket48Assistant on GitHub
-      </a></p>
+      </a> 上开源</p>
+      <p>This assistant is developed based on the Pocket48 app. For more features, please use the official authentic app. If there are any copyright concerns, we will remove the content promptly. 
+      </p>
     </div>
   </div>
   <script src="js/tab.js"></script>

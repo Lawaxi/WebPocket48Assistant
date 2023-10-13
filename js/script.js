@@ -28,8 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	const getAnswerButton = document.getElementById("getAnswerButton");
 	const arrangeAnswerButton = document.getElementById("arrangeAnswerButton");
 	const downloadAnswerButton = document.getElementById("downloadAnswerButton");
-	const chartContainer = document.getElementById("chartContainer");
+	const upPageButton = document.getElementById("upPage");
+    const downPageButton = document.getElementById("downPage");
+    const answerListContainer = document.getElementById("answerListContainer");
 	
+	const chartContainer = document.getElementById("chartContainer");
+
 	//翻牌
 	const opponentIdInput = document.getElementById("opponentId");
     const answerTypeSelect = document.getElementById("answerType");
@@ -82,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		"19999": "/mediasource/gift/155547136419221BBECfH6X.png"
 	};
 
+/*  登录  */
 	//登录前
 	loginForm.addEventListener("submit", async (e) => {
 		e.preventDefault();
@@ -323,22 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	}
 
-	function updateTransferButtons() {
-		transferButtons.forEach(button => {
-			const dataId = button.getAttribute("data-gift-id");
-			const imgSrc = `https://source.48.cn${images[dataId]}`; // Add root directory
-
-			const img = document.createElement("img");
-			img.src = imgSrc;
-			img.style.width = "24px";
-			img.style.height = "24px";
-
-			button.prepend(img); // Prepend the image to the button
-
-			button.addEventListener("click", () => transferMoney(giftIdMap[dataId]));
-		});
-	}
-
 	function saveLoginReturns(response) {
 		if (response.status === 200) {
 			const {
@@ -367,50 +356,6 @@ document.addEventListener("DOMContentLoaded", () => {
 		} else {
 			alert(`登录失败${response.status}: ${response.message}`);
 			return false;
-		}
-	}
-
-	async function transferMoney(giftId) {
-		if (currentToken === "") {
-			alert("未登录");
-			return;
-		}
-
-		const liveId = liveSelect.value;
-
-		if (!liveId || !selectedCrm || !selectedUserId) {
-			alert("请选择一个直播");
-			return;
-		}
-
-		// 发送转账请求
-		const response = await fetchData("https://pocketapi.48.cn/gift/api/v1/gift/send", {
-			giftId: giftId,
-			businessId: liveId,
-			isPocketGift: 0,
-			crm: selectedCrm,
-			giftNum: 1,
-			acceptUserId: selectedUserId,
-			businessCode: 0
-		});
-
-		if (response.status === 200) {
-			const updatedBalance = response.content.money;
-			selectedBalance.textContent = updatedBalance;
-
-			// Update balance in the stored account info 
-			const accountInfos = getAccountInfosFromLocalStorage();
-			const updatedAccountInfos = accountInfos.map(info => {
-				if (info.token === currentToken) {
-					info.balance = updatedBalance;
-				}
-				return info;
-			});
-
-			storeAccountInfosToLocalStorage(updatedAccountInfos);
-			alert(response.message);
-		} else {
-			alert(`送礼失败：${response.status}: ${response.message}`);
 		}
 	}
 
@@ -535,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	updateAndSelect();
 	updateTransferButtons();
 
-
+/*  直播送礼  */
 	let selectedUserId = null; 
 	let selectedCrm = null; 
 
@@ -573,8 +518,69 @@ document.addEventListener("DOMContentLoaded", () => {
 			alert("没有可用的直播");
 		}
 	});
+	
+	
 
-/*  直播送礼  */
+	function updateTransferButtons() {
+		transferButtons.forEach(button => {
+			const dataId = button.getAttribute("data-gift-id");
+			const imgSrc = `https://source.48.cn${images[dataId]}`; // Add root directory
+
+			const img = document.createElement("img");
+			img.src = imgSrc;
+			img.style.width = "24px";
+			img.style.height = "24px";
+
+			button.prepend(img); // Prepend the image to the button
+
+			button.addEventListener("click", () => transferMoney(giftIdMap[dataId]));
+		});
+	}
+
+	async function transferMoney(giftId) {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+
+		const liveId = liveSelect.value;
+
+		if (!liveId || !selectedCrm || !selectedUserId) {
+			alert("请选择一个直播");
+			return;
+		}
+
+		// 发送转账请求
+		const response = await fetchData("https://pocketapi.48.cn/gift/api/v1/gift/send", {
+			giftId: giftId,
+			businessId: liveId,
+			isPocketGift: 0,
+			crm: selectedCrm,
+			giftNum: 1,
+			acceptUserId: selectedUserId,
+			businessCode: 0
+		});
+
+		if (response.status === 200) {
+			const updatedBalance = response.content.money;
+			selectedBalance.textContent = updatedBalance;
+
+			// Update balance in the stored account info 
+			const accountInfos = getAccountInfosFromLocalStorage();
+			const updatedAccountInfos = accountInfos.map(info => {
+				if (info.token === currentToken) {
+					info.balance = updatedBalance;
+				}
+				return info;
+			});
+
+			storeAccountInfosToLocalStorage(updatedAccountInfos);
+			alert(response.message);
+		} else {
+			alert(`送礼失败：${response.status}: ${response.message}`);
+		}
+	}
+
 	// 选择框选择事件
 	liveSelect.addEventListener("change", async () => {
 		if (currentToken === "") {
@@ -603,11 +609,310 @@ document.addEventListener("DOMContentLoaded", () => {
 		selectedCrm = liveInfoResponse.content.crm;
 	});
 
-/*  翻牌列表  */
-    var allAnswer = "";
+/*  翻牌  */
+	document.getElementById("getCardPrice").addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
+        const opponentId = opponentIdInput.value;
+        const requestBody = { "memberId": opponentId };
+
+        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v2/custom/index", requestBody);
+
+        if (response && response.status === 200) {
+            cardPrices = response.content.customs;
+            alert("翻牌价格获取成功");
+            calculatePrice();
+        } else {
+            alert(`获取失败: ${response.message}`);
+        }
+    });
+
+    function calculatePrice() {
+        const answerType = answerTypeSelect.value;
+        const type = typeSelect.value;
+
+        for (const price of cardPrices) {
+            if (price.answerType === parseInt(answerType)) {
+                if (type === "1") {
+                    priceInput.value = price.normalCost;
+                } else if (type === "2") {
+                    priceInput.value = price.anonymityCost;
+                } else if (type === "3") {
+                    priceInput.value = price.privateCost;
+                }
+                break;
+            }
+        }
+    }
+
+    answerTypeSelect.addEventListener("change", calculatePrice);
+    typeSelect.addEventListener("change", calculatePrice);
+
+    askQuestionButton.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+        
+        const opponentId = opponentIdInput.value;
+        const content = contentTextarea.value;
+        const answerType = answerTypeSelect.value;
+        const type = typeSelect.value;
+        const cost = priceInput.value;
+
+        const requestBody = {
+            "memberId": parseInt(opponentId),
+            "content": content,
+            "type": parseInt(type),
+            "cost": cost,
+            "answerType": parseInt(answerType)
+        };
+
+        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question", requestBody);
+
+        if (response && response.status === 200) {
+            alert("提问成功");
+        } else {
+            alert(`提问失败: ${response.message}`);
+        }
+    });
     
+/*  翻牌列表  */
+    let startIndex = 0; // 起始序号
+    let displayType = false; //0表示读取在线翻牌列表；1表示读取上传翻牌列表
+
 	getAnswerButton.addEventListener("click", async () => {
+	    displayType = false;
+	    startIndex = 0;
+	    fetchAndDisplayAnswers();
 	});
+	
+	upPageButton.addEventListener("click", () => {
+        if (startIndex >= 20) {
+            startIndex -= 20;
+            if(displayType){
+                displayAnswers(JSON.parse(allAnswer), 20, startIndex);
+            }else{
+                fetchAndDisplayAnswers();
+            }
+        }else{
+            upPageButton.disabled = true;
+        }
+    });
+
+    downPageButton.addEventListener("click", () => {
+        startIndex += 20;
+        if(displayType){
+            displayAnswers(JSON.parse(allAnswer), 20, startIndex);
+        }else{
+            fetchAndDisplayAnswers();
+        }
+    });
+    
+    function formatTimestamp(timestamp) {
+        const time = new Date(timestamp);
+        const formattedTime = time.toLocaleString("zh-CN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+        return formattedTime;
+    }
+
+    async function displayAnswers(answerList, maxLength, start) {
+		const answerListContainer = document.getElementById("answerListContainer");
+        while (answerListContainer.firstChild) {
+            answerListContainer.removeChild(answerListContainer.firstChild);
+        }
+        
+        const end = answerList.length < start + maxLength ? answerList.length : start + maxLength;
+        if(end <= start || start < 0){
+            // 显示无更多内容
+            const noMoreDiv = document.createElement("div");
+            noMoreDiv.classList.add("answer-no-more")
+            noMoreDiv.textContent = "没有翻牌";
+            answerListContainer.appendChild(noMoreDiv);
+        }
+        else{
+            for(var i = start; i < end; i ++){
+                const answer = answerList[i];
+                
+                const answerDiv = document.createElement("div");
+                answerDiv.classList.add("answer-element");
+        
+                // 第一行：时间和状态
+                const timeStatusDiv = document.createElement("div");
+                timeStatusDiv.classList.add("answer-time-status");
+                const time = document.createElement("p");
+                time.textContent = formatTimestamp(parseInt(answer.qtime));
+                const status = document.createElement("p");
+                status.classList.add("answer-status");
+                if (answer.status === 1) {
+                    status.textContent = "未翻";
+                    if(!displayType){
+                        status.textContent += "";
+                        const retractLink = document.createElement("a");
+                        retractLink.textContent = "撤回";
+                        retractLink.href = "#";
+                        retractLink.addEventListener("click", () => {
+                            retractAnswer(answer.questionId);
+                        });
+                        status.appendChild(retractLink);
+                    }
+                } else if (answer.status === 2) {
+                    status.textContent = "已翻";
+                } else {
+                    status.textContent = "已退款";
+                }
+                timeStatusDiv.appendChild(time);
+                timeStatusDiv.appendChild(status);
+        
+                // 第二行：翻牌内容
+                const contentDiv = document.createElement("div");
+                contentDiv.classList.add("answer-content");
+                contentDiv.textContent = answer.content;
+        
+                // 第三行：答案图标
+                const answerIconDiv = document.createElement("div");
+                answerIconDiv.classList.add("answer-icon");
+                const costIcon = document.createElement("p");
+                costIcon.textContent = answer.cost + "鸡腿";
+                const answerTypeIcon = document.createElement("p");
+                if (answer.answerType === 1) {
+                    answerTypeIcon.textContent = "文字翻牌";
+                } else if (answer.answerType === 2) {
+                    answerTypeIcon.textContent = "语音翻牌";
+                } else if (answer.answerType === 3) {
+                    answerTypeIcon.textContent = "视频翻牌";
+                }
+                answerIconDiv.appendChild(costIcon);
+                answerIconDiv.appendChild(answerTypeIcon);
+        
+                answerDiv.appendChild(timeStatusDiv);
+                answerDiv.appendChild(contentDiv);
+                answerDiv.appendChild(answerIconDiv);
+                
+                if (answer.status === 2) {
+                    // 第四行：对方信息
+                    const idolInfoDiv = document.createElement("div");
+                    idolInfoDiv.classList.add("answer-reply-info");
+                    const idolNickname = answer.baseUserInfo.nickname;
+                    const idolTeamLogo = `https://source.48.cn${answer.baseUserInfo.teamLogo}`;
+                    idolInfoDiv.innerHTML = `${idolNickname} 的翻牌 <img src="${idolTeamLogo}" />`;
+                    
+                    // 第五行：翻牌时间
+                    const answerTimeDiv = document.createElement("div");
+                    answerTimeDiv.classList.add("answer-reply-time");
+                    const answerTime = formatTimestamp(parseInt(answer.answerTime));
+                    answerTimeDiv.textContent = `翻牌时间：${answerTime}`;
+                    
+                    // 第六行：翻牌内容
+                    const answerContentDiv = document.createElement("div");
+                    answerContentDiv.classList.add("answer-reply-content");
+                    if (answer.answerType === 1) {
+                        answerContentDiv.textContent = answer.answerContent;
+                    } else if (answer.answerType === 2) {
+                        const audioPlayer = document.createElement("audio");
+                        audioPlayer.controls = true;
+                        audioPlayer.src = `https://mp4.48.cn${JSON.parse(answer.answerContent).url}`;
+                        answerContentDiv.appendChild(audioPlayer);
+                    } else if (answer.answerType === 3) {
+                        const videoPlayer = document.createElement("video");
+                        videoPlayer.controls = true;
+                        videoPlayer.src = `https://mp4.48.cn${JSON.parse(answer.answerContent).url}`;
+                        answerContentDiv.appendChild(videoPlayer);
+                    }
+                    
+                    answerDiv.appendChild(idolInfoDiv);
+                    answerDiv.appendChild(answerTimeDiv);
+                    answerDiv.appendChild(answerContentDiv);
+                }
+                
+                answerListContainer.appendChild(answerDiv);
+            }
+        }
+        
+        // 判断是否需要禁用分页按钮
+        if (startIndex < 20) {
+            upPageButton.disabled = true;
+        } else {
+            upPageButton.disabled = false;
+        }
+        if (end - start < 20 || (displayType && answerList.length === end)) {
+            downPageButton.disabled = true;
+        } else {
+            downPageButton.disabled = false;
+        }
+    }
+    
+    async function fetchAndDisplayAnswers() {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+        
+        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question/list", {
+            status: 0,
+            beginLimit: startIndex,
+            memberId: "",
+            limit: 20
+        });
+
+        if (response.status === 200) {
+            const answerList = response.content;
+            displayAnswers(answerList, 20, 0);
+        } else {
+            alert(`获取翻牌数据失败：${response.message}`);
+        }
+    }
+
+    async function retractAnswer(questionId) {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
+        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question/operate", {
+            memberId: "",
+            questionId: questionId
+        });
+
+        if (response.status === 200) {
+            fetchAndDisplayAnswers();
+        } else {
+            alert(`撤回失败：${response.message}`);
+        }
+    }
+    
+    document.getElementById("uploadAnswerList").addEventListener("click", function () {
+        document.getElementById("fileInput").click();
+    });
+    
+    document.getElementById("fileInput").addEventListener("change", function (event) {
+        const file = event.target.files[0];
+    
+        if (file) {
+            const reader = new FileReader();
+    
+            reader.onload = function (e) {
+                const content = e.target.result;
+                allAnswer = JSON.stringify(JSON.parse(content));
+                downloadAnswerButton.disabled = false;
+                displayType = true;
+                startIndex = 0;
+                displayAnswers(JSON.parse(allAnswer), 20, 0);
+            };
+    
+            reader.readAsText(file);
+        }
+    });
+	
+    var allAnswer = "";
     
 	arrangeAnswerButton.addEventListener("click", async () => {
 		if (currentToken === "") {
@@ -637,7 +942,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				responseSize = userData.length;
 				beginLimit += 20;
 			} else {
-				alert(`下载失败: ${response.message}`);
+				alert(`获取翻牌数据失败: ${response.message}`);
 				break;
 			}
 		}
@@ -713,75 +1018,4 @@ document.addEventListener("DOMContentLoaded", () => {
 			window.URL.revokeObjectURL(url);
 			document.body.removeChild(a);
 	});
-
-/*  翻牌  */
-	document.getElementById("getCardPrice").addEventListener("click", async () => {
-		if (currentToken === "") {
-			alert("未登录");
-			return;
-		}
-		
-        const opponentId = opponentIdInput.value;
-        const requestBody = { "memberId": opponentId };
-
-        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v2/custom/index", requestBody);
-
-        if (response && response.status === 200) {
-            cardPrices = response.content.customs;
-            alert("翻牌价格获取成功");
-            calculatePrice();
-        } else {
-            alert(`获取失败: ${response.message}`);
-        }
-    });
-
-    function calculatePrice() {
-        const answerType = answerTypeSelect.value;
-        const type = typeSelect.value;
-
-        for (const price of cardPrices) {
-            if (price.answerType === parseInt(answerType)) {
-                if (type === "1") {
-                    priceInput.value = price.normalCost;
-                } else if (type === "2") {
-                    priceInput.value = price.anonymityCost;
-                } else if (type === "3") {
-                    priceInput.value = price.privateCost;
-                }
-                break;
-            }
-        }
-    }
-
-    answerTypeSelect.addEventListener("change", calculatePrice);
-    typeSelect.addEventListener("change", calculatePrice);
-
-    askQuestionButton.addEventListener("click", async () => {
-		if (currentToken === "") {
-			alert("未登录");
-			return;
-		}
-        
-        const opponentId = opponentIdInput.value;
-        const content = contentTextarea.value;
-        const answerType = answerTypeSelect.value;
-        const type = typeSelect.value;
-        const cost = priceInput.value;
-
-        const requestBody = {
-            "memberId": parseInt(opponentId),
-            "content": content,
-            "type": parseInt(type),
-            "cost": cost,
-            "answerType": parseInt(answerType)
-        };
-
-        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question", requestBody);
-
-        if (response && response.status === 200) {
-            alert("提问成功");
-        } else {
-            alert(`提问失败: ${response.message}`);
-        }
-    });
 });

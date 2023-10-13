@@ -129,12 +129,93 @@ select {
     outline: none;
 }
 
+/* 直播送礼 */
 .transfer-button img {
     width: 24px;
     height: 24px;
     margin-right: 10px;
 }
 
+/* 翻牌列表 */
+.answer-element {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #f8f8f8;
+    border-radius: 20px;
+}
+
+.answer-element p {
+    margin: 5px 0;
+}
+
+.answer-element video {
+    width: 100%;
+}
+
+.answer-time-status {
+    color: #d0d0d0;
+    display: flex;
+}
+
+.answer-time-status .answer-status {
+    margin-left: auto;
+}
+
+.answer-time-status .answer-status a {
+    color: #888;
+}
+
+.answer-icon {
+    display: flex;
+}
+
+.answer-icon p {
+    border-radius: 20px;
+    padding: 4px 10px;
+    background-color: #87CEEB;
+    margin: 5px 10px 15px 0px;
+}
+
+.answer-reply-info {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.answer-reply-info img {
+    margin-left: 10px;
+    max-height: 1em;
+}
+
+.answer-reply-time {
+    color: #d0d0d0;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.answer-content {
+    margin: 10px 0;
+}
+
+.answer-no-more {
+    color: #d0d0d0;
+    margin: 5px 0;
+}
+
+.page-button {
+    background: none!important;
+    border: none;
+    color: #2196F3;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.page-button[disabled] {
+    color: gray;
+}
+
+/* 免责 */
 .disclaimer {
     background-color: #f0f0f0;
     padding: 20px;
