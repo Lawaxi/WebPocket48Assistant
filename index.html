@@ -41,6 +41,7 @@
       <li class="tab-title"><a href="#">直播送礼</a></li>
       <li class="tab-title"><a href="#">翻牌</a></li>
       <li class="tab-title"><a href="#">翻牌列表</a></li>
+      <li class="tab-title"><a href="#">房间资源下载</a></li>
     </ul>
 
     <!-- 登录 -->
@@ -141,6 +142,30 @@
     <p id="loadingMessage" class="sign-text">正在获取，请稍候...</p>
     <div id="chartContainer">
         </div>
+    </section>
+
+    <!-- 翻牌列表 -->
+    <section id="roomInformation" class="tab-content">
+        <div>
+            <input type="text" id="searchInput" placeholder="输入小偶像">
+            <button id="searchButton">搜索</button>
+        </div>
+        <div>
+            <select id="serverSelect">
+                <option disabled selected>选择搜索结果</option>
+            </select>
+        </div>
+        <div>
+            <label for="userIdInput">用户ID：</label>
+            <input type="text" id="userIdInput">
+        </div>
+        <div>
+            <label for="serverIdInput">Server ID：</label>
+            <input type="text" id="serverIdInput">
+        </div>
+        
+        <button id="getAlbumButton">获取个人相册</button>
+        <div id="albumContainer"></div>
     </section>
 
     <div class="disclaimer">

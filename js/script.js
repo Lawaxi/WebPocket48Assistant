@@ -30,8 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	const downloadAnswerButton = document.getElementById("downloadAnswerButton");
 	const upPageButton = document.getElementById("upPage");
     const downPageButton = document.getElementById("downPage");
+    
     const answerListContainer = document.getElementById("answerListContainer");
-	
 	const chartContainer = document.getElementById("chartContainer");
 
 	//翻牌
@@ -42,6 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentTextarea = document.getElementById("content");
     const askQuestionButton = document.getElementById("askQuestion");
     let cardPrices = {};
+    
+    //房间资源下载
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchButton");
+    const serverSelect = document.getElementById("serverSelect");
+    const userIdInput = document.getElementById("userIdInput");
+    const serverIdInput = document.getElementById("serverIdInput");
+    const getAlbumButton = document.getElementById("getAlbumButton");
+    
+    const albumContainer = document.getElementById("albumContainer");
+    
+    let serverData = [];
 
 	function isPrivateMode() {
 		try {
@@ -725,7 +737,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function displayAnswers(answerList, maxLength, start) {
-		const answerListContainer = document.getElementById("answerListContainer");
         while (answerListContainer.firstChild) {
             answerListContainer.removeChild(answerListContainer.firstChild);
         }
@@ -1022,4 +1033,138 @@ document.addEventListener("DOMContentLoaded", () => {
 		window.URL.revokeObjectURL(url);
 		document.body.removeChild(a);
 	});
+	
+/*  房间资源下载  */
+    searchButton.addEventListener("click", async () => {
+        if (currentToken === "") {
+            alert("未登录");
+            return;
+        }
+    
+        const searchContent = searchInput.value;
+        if (searchContent) {
+            const response = await fetchData("https://pocketapi.48.cn/im/api/v1/im/server/search", {
+                searchContent: searchContent
+            });
+    
+            if (response.status === 200) {
+                if (response.content.serverApiList.length === 0) {
+                    alert("无匹配结果");
+                } else {
+                    serverSelect.innerHTML = '';
+    
+                    response.content.serverApiList.forEach((server, index) => {
+                        const option = document.createElement("option");
+                        option.value = index;
+                        option.textContent = server.serverName + ' (' + server.serverDefaultName + ')';
+                        serverSelect.appendChild(option);
+    
+                        serverData.push({
+                            starId: server.serverOwner,
+                            serverId: server.serverId
+                        });
+                    });
+                    
+                    serverSelect.selectedIndex = 0;
+                    serverSelect.dispatchEvent(new Event("change"));
+                }
+            } else {
+                alert(`搜索失败: ${response.message}`);
+            }
+        }
+    });
+    
+    serverSelect.addEventListener("change", () => {
+        const selectedIndex = serverSelect.value;
+
+        if (selectedIndex >= 0) {
+            userIdInput.value = serverData[selectedIndex].starId;
+            serverIdInput.value = serverData[selectedIndex].serverId;
+        } else {
+            userIdInput.value = "";
+            serverIdInput.value = "";
+        }
+    });
+    
+    getAlbumButton.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
+        const userId = userIdInput.value;
+        const serverId = serverIdInput.value;
+    
+        if (userId && serverId) {
+            let totalPages = 1;
+            let page = 0;
+            let combinedUserNftList = [];
+    
+            while (page < totalPages) {
+                const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/nft/user_nft_list", {
+                    starId: parseInt(userId), // 转换为整数
+                    size: 20,
+                    page: page
+                });
+    
+                if (response.status === 200) {
+                    combinedUserNftList = combinedUserNftList.concat(response.content.userNftListInfo);
+    
+                    if (page === 0) {
+                        totalPages = response.content.page;
+                    }
+    
+                    page++;
+                } else {
+                    alert(`获取第 ${page} 页失败: ${response.message}`);
+                    break;
+                }
+            }
+            
+            while (albumContainer.firstChild) {
+                albumContainer.removeChild(albumContainer.firstChild);
+            }
+            
+            combinedUserNftList.forEach(item => {
+                const albumDiv = document.createElement("div");
+                albumDiv.classList.add("album-element");
+                
+                const timeStatusDiv = document.createElement("div");
+                timeStatusDiv.classList.add("album-time-status");
+                const time = document.createElement("p");
+                time.textContent = formatTimestamp(parseInt(item.createTime));
+                timeStatusDiv.appendChild(time);
+                
+                const albumContentDiv = document.createElement("div");
+                albumContentDiv.classList.add("album-content");
+                if (item.sourceType === 1) { // 图片
+                    const image = document.createElement("img");
+                    image.src = item.url;
+                    albumContentDiv.appendChild(image);
+                } else if (item.sourceType === 2) { // 视频
+                    const videoPlayer = document.createElement("video");
+                    videoPlayer.controls = true;
+                    videoPlayer.src = item.url;
+                    
+                    const getThumbnailButton = document.createElement("button");
+                    getThumbnailButton.textContent = "获取缩略图";
+                    getThumbnailButton.addEventListener("click", () => {
+                        window.open(item.videoInfo.previewImg, "_blank");
+                    });
+                    
+                    albumContentDiv.appendChild(videoPlayer);
+                    albumContentDiv.appendChild(getThumbnailButton);
+                } else if (item.sourceType === 3) { // 语音
+                    const audioPlayer = document.createElement("audio");
+                    audioPlayer.controls = true;
+                    audioPlayer.src = item.url;
+                    albumContentDiv.appendChild(audioPlayer);
+                }
+                
+                albumDiv.appendChild(timeStatusDiv);
+                albumDiv.appendChild(albumContentDiv);
+                albumContainer.appendChild(albumDiv);
+            });
+        }
+    });
 });

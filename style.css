@@ -91,6 +91,14 @@ button {
     cursor: pointer;
 }
 
+select {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+}
+
 button:hover:not(:disabled) {
     background-color: #1E88E5;
 }
@@ -122,13 +130,6 @@ button:disabled {
     margin-bottom: 10px;
 }
 
-select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-}
-
 /* 直播送礼 */
 .transfer-button img {
     width: 24px;
@@ -137,22 +138,22 @@ select {
 }
 
 /* 翻牌列表 */
-.answer-element {
+.answer-element, .album-element {
     padding: 10px;
     margin: 10px 0;
     background-color: #f8f8f8;
     border-radius: 20px;
 }
 
-.answer-element p {
+.answer-element p, .album-element p {
     margin: 5px 0;
 }
 
-.answer-element video {
+.answer-element video, .album-element video, .album-element img {
     width: 100%;
 }
 
-.answer-time-status {
+.answer-time-status, .album-time-status {
     color: #d0d0d0;
     display: flex;
 }
