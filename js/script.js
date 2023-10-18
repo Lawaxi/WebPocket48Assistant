@@ -1048,9 +1048,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     
             if (response.status === 200) {
-                if (response.content.serverApiList.length === 0) {
-                    alert("无匹配结果");
-                } else {
+                serverData = [];
+                
+                if(response.content.serverApiList && response.content.serverApiList.length !== 0){
                     serverSelect.innerHTML = '';
     
                     response.content.serverApiList.forEach((server, index) => {
@@ -1066,7 +1066,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                     
                     serverSelect.selectedIndex = 0;
-                    serverSelect.dispatchEvent(new Event("change"));
+                    userIdInput.value = serverData[0].starId;
+                    serverIdInput.value = serverData[0].serverId;
+                }else {
+                    serverSelect.innerHTML = '<option disabled="" selected="">选择搜索结果</option>';
+                    alert("无匹配结果");
                 }
             } else {
                 alert(`搜索失败: ${response.message}`);
