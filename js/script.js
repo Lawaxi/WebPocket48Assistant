@@ -1108,12 +1108,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
     
                 if (response.status === 200) {
-                    combinedUserNftList = combinedUserNftList.concat(response.content.userNftListInfo);
-    
                     if (page === 0) {
+                        if(!response.content || !response.content.page){
+                            break;
+                        }
                         totalPages = response.content.page;
                     }
-    
+                    
+                    combinedUserNftList = combinedUserNftList.concat(response.content.userNftListInfo);
+                    
                     page++;
                 } else {
                     alert(`获取第 ${page} 页失败: ${response.message}`);
@@ -1123,6 +1126,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             while (albumContainer.firstChild) {
                 albumContainer.removeChild(albumContainer.firstChild);
+            }
+            
+            if(combinedUserNftList.length === 0){
+                albumContainer.textContent = "无个人相册";
+                return;
             }
             
             combinedUserNftList.forEach(item => {
