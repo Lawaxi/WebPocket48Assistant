@@ -21,9 +21,9 @@ body {
     display: flex;
     border-radius: 10px 10px 0 0;
     padding: 10px 0;
+    flex-wrap: wrap;
 }
 
-/* 样式化标签链接 */
 .tab-title {
     padding: 10px;
     cursor: pointer;
@@ -43,6 +43,7 @@ body {
 .tab-title a {
     color: #d0d0d0;
     text-decoration: none;
+    white-space: nowrap;
 }
 
 .tab-title.active, .tab-title:hover{
@@ -53,7 +54,6 @@ body {
     color: #2196F3;
 }
 
-
 .tab-content {
     display: none;
 }
@@ -62,10 +62,33 @@ body {
     display: block;
 }
 
+/* 纵向排版 */
 form, .column-container {
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
+}
+
+.column-container {
+    margin-top: -1em;
+}
+
+/* 横向排版 */
+.input-row, .select-row {
+    display: flex;
+    align-items: center;
+}
+
+.mobile-input, .live-select {
+    flex: 1;
+}
+
+.mobile-input {
+    margin-left: 10px;
+}
+
+.live-select {
+    margin-right: 10px;
 }
 
 label {
@@ -100,18 +123,9 @@ button:disabled {
     cursor: not-allowed;
 }
 
-.input-row {
-    display: flex;
-    align-items: center;
-}
-
+/* 登录 */
 .area-code-input {
     width: 50px;
-    margin-right: 10px;
-}
-
-.mobile-input {
-    flex: 1;
 }
 
 .sign-text{

@@ -40,7 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const typeSelect = document.getElementById("type");
     const priceInput = document.getElementById("price");
     const contentTextarea = document.getElementById("content");
+    const syncUserId = document.getElementById("syncUserId");
+    const getCardPrice = document.getElementById("getCardPrice");
     const askQuestionButton = document.getElementById("askQuestion");
+    
     let cardPrices = {};
 
     //房间资源下载
@@ -627,7 +630,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /*  翻牌  */
-    document.getElementById("getCardPrice").addEventListener("click", async () => {
+    syncUserId.addEventListener("click", async () => {
+        opponentIdInput.value = userIdInput.value;
+    });
+    
+    getCardPrice.addEventListener("click", async () => {
         if (currentToken === "") {
             alert("未登录");
             return;
