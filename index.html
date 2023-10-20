@@ -42,6 +42,7 @@
       <li class="tab-title"><a href="#">翻牌</a></li>
       <li class="tab-title"><a href="#">翻牌列表</a></li>
       <li class="tab-title"><a href="#">房间资源下载</a></li>
+      <li class="tab-title"><a href="#">Fetch Data</a></li>
     </ul>
 
     <!-- 登录 -->
@@ -98,6 +99,7 @@
 
     <!-- 翻牌 -->
     <section id="answer" class="tab-content">
+        <div class="column-container">
       <h2>翻牌</h2>
       <div>
         <label for="opponentId">对方ID：</label>
@@ -118,10 +120,9 @@
         <label for="opponentId">价格：</label>
         <input type="text" id="price">
     </div>
-    <div>
         <textarea id="content" rows="4" cols="50"></textarea>
-    </div>
     <button id="askQuestion">提问</button>
+    </div>
     </section>
 
     <!-- 翻牌列表 -->
@@ -144,7 +145,7 @@
         </div>
     </section>
 
-    <!-- 翻牌列表 -->
+    <!-- 房间资源下载 -->
     <section id="roomInformation" class="tab-content">
         <div>
             <input type="text" id="searchInput" placeholder="输入小偶像">
@@ -166,6 +167,17 @@
         
         <button id="getAlbumButton">获取个人相册</button>
         <div id="albumContainer"></div>
+    </section>
+    
+    <!-- Fetch Data -->
+    <section id="fetchData" class="tab-content">
+        <div class="column-container">
+          <input type="text" id="urlInput" placeholder="输入 Request URL" required>
+          <input type="text" id="requestBodyInput" placeholder="输入 Request Body" required>
+          <button id="request">Fetch Data</button>
+        <textarea id="responseBodyInput" rows="4" cols="50" class="body-return"></textarea>
+        </div>
+        <button id="copyBodyButton">复制 Response Body</button>
     </section>
 
     <div class="disclaimer">

@@ -53,6 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const albumContainer = document.getElementById("albumContainer");
     
+    //fetchData
+	const request = document.getElementById("request");
+    const responseBodyInput = document.getElementById("responseBodyInput");
+    const copyBodyButton = document.getElementById("copyBodyButton");
+    
     let serverData = [];
 
 	function isPrivateMode() {
@@ -77,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		"1048": "691322274260520960",
 		"148": "721778264055287808",
 		"48": "517760052235145216",
-		"20": "266592591995027456",
+		"20": "329371855474139140", //266592591995027456
 		"10": "266592613964791808",
 		"5": "266592588983517184"
 	};
@@ -85,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const images = {
 		"5": "/mediasource/gift/0955be61-db0d-4f0e-b8e6-51997c4b36e2.png",
 		"10": "/mediasource/gift/1600744089790ItGW8WYXUT.png",
-		"20": "/mediasource/gift/16007442056948gPSmtv2qx.png",
+		"20": "/mediasource/emoticon/1e657eb2-534e-4ff9-93f8-267870c4e453.png",///mediasource/gift/16007442056948gPSmtv2qx.png
 		"48": "/mediasource/gift/1601373212779S5y74wAZX7.png",
 		"148": "/backstage/2022/0415/cm862hidw54w1mx2kx12z41.png",
 		"1048": "/backstage/2022/0121/ft11889bxrh7an37jpjxoa2.png",
@@ -1178,5 +1183,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 albumContainer.appendChild(albumDiv);
             });
         }
+    });
+    
+/*  Fetch Data  */
+    request.addEventListener("click", async () => {
+		if (currentToken === "") {
+			alert("未登录");
+			return;
+		}
+		
+        const url = document.getElementById("urlInput").value;
+        if(!url){
+            alert("请输入请求地址")
+            return;
+        }
+        
+        let body = document.getElementById("requestBodyInput").value;
+        if(!body){
+            body = "{}";
+        }
+        
+        const response = await fetchData(url, JSON.parse(body));
+        responseBodyInput.value = JSON.stringify(response);
+	});
+	
+    copyBodyButton.addEventListener("click", async () => {
+		responseBodyInput.select();
+		document.execCommand("copy");
+		alert("已复制到剪贴板！");
     });
 });

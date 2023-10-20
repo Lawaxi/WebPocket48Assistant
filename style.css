@@ -62,7 +62,7 @@ body {
     display: block;
 }
 
-form {
+form, .column-container {
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
@@ -73,7 +73,7 @@ label {
     margin-bottom: 5px;
 }
 
-input {
+input, textarea, select{
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;
@@ -89,14 +89,6 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-}
-
-select {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
 }
 
 button:hover:not(:disabled) {
@@ -214,6 +206,10 @@ button:disabled {
 
 .page-button[disabled] {
     color: gray;
+}
+
+.body-return {
+    width: 100%;
 }
 
 /* 免责 */
