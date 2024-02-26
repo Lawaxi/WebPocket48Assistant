@@ -10,12 +10,16 @@
     </head>
 
     <body>
+        <div id="warningBar" style="display:none;">本工具是纯前端工具，由于官方API的CORS跨域封锁，一些安全的浏览器无法使用本工具；您可以使用 <a href="https://github.com/Lawaxi/WebPocket48Assistant/releases/tag/%E5%B7%B1-php">PHP 版</a>，后端代理请求实现，本站暂不提供，请自行搭建。</div>
         <div class="container">
             <p>已登录账号：</p>
             <p id="privateModeMessage" class="sign-text">无痕模式下无法保存登录信息，关闭浏览器会清空，可以复制登录 Token 到其他地方</p>
             <select id="accountSelect">
             </select>
             <button id="deleteAccountButton">删除当前项</button>
+                <button id="downloadLoginInfoButton" type="button">以 JSON 下载全部</button>
+                <input type="file" id="uploadLoginInfoInput" style="display: none" accept=".json">
+                <button id="uploadLoginInfoButton" type="button">以 JSON 批量上传</button>
             <div>
                 <p>已选择账号:
                     <span id="selectedNickname">
@@ -55,12 +59,13 @@
             <section id="login" class="tab-content active">
                 <div class="column-container">
                     <h2>登录</h2>
+                    <p class="info">官方 API 最近换为加密登录，本工具无法实现密码登录，请使用验证码登录</p>
                     <form id="loginForm">
                         <label for="mobile">账号：</label>
-                        <input type="text" id="mobile" placeholder="请输入账号" required>
+                        <input type="text" id="mobile" placeholder="请输入账号" required disabled>
                         <label for="pwd">密码：</label>
-                        <input type="password" id="pwd" placeholder="请输入密码" required>
-                        <button type="submit">登录</button>
+                        <input type="password" id="pwd" placeholder="请输入密码" required disabled>
+                        <button type="submit" disabled>登录</button>
                     </form>
                     <h2>或 短信登录</h2>
                     <form id="smsLoginForm">
@@ -77,6 +82,15 @@
                         <input type="text" id="tokenInput" placeholder="请输入 Token" required>
                         <button type="submit" id="tokenLoginButton">用 Token 登录</button>
                     </form>
+                    <!-- <h2>批量登录</h2>
+                    <form id="batchLoginForm">
+                        <textarea id="loginInfo" rows="5" cols="40" placeholder=""></textarea>
+                        <div class="batch-delimiter">
+                            <p>分隔符：</p>
+                            <input type="text" id="delimiter" value="----" placeholder="分隔符">
+                            <button id="batchLoginButton" type="submit">批量登录</button>
+                        </div>
+                    </form> -->
                 </div>
             </section>
 
@@ -166,7 +180,7 @@
                     <button id="downloadAnswerButton" disabled title="请先使用整理全部翻牌功能">以 json 下载</button>
                 </div>
                 <div id="answerListContainer"></div>
-                <input type="file" id="fileInput" style="display: none" accept=".json">
+                <input type="file" id="uploadAnswerListInput" style="display: none" accept=".json">
                 <div>
                     <button id="upPage" class="page-button" disabled>上一页</button>
                     <button id="downPage" class="page-button" disabled>下一页</button>

@@ -2,6 +2,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
     const smsLoginForm = document.getElementById("smsLoginForm");
+    const batchLoginForm = document.getElementById("batchLoginForm");
+    const downloadLoginInfoButton = document.getElementById("downloadLoginInfoButton");
+    const uploadLoginInfoInput = document.getElementById("uploadLoginInfoInput");
+    const uploadLoginInfoButton = document.getElementById("uploadLoginInfoButton");
+
     const accountSelect = document.getElementById("accountSelect");
     const deleteAccountButton = document.getElementById("deleteAccountButton");
     const selectedNickname = document.getElementById("selectedNickname");
@@ -30,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const downloadAnswerButton = document.getElementById("downloadAnswerButton");
     const upPageButton = document.getElementById("upPage");
     const downPageButton = document.getElementById("downPage");
+    const uploadAnswerListInput = document.getElementById("uploadAnswerListInput");
 
     const answerListContainer = document.getElementById("answerListContainer");
     const chartContainer = document.getElementById("chartContainer");
@@ -122,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("mobile")
             .value = "";
-        if (saveLoginReturns(loginResponse)) {
+        if (saveLoginReturns(loginResponse, true)) {
             document.getElementById("pwd")
                 .value = "";
         }
@@ -155,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 document.getElementById("areaCodeInput")
                     .value = "86";
-                if (saveLoginReturns(loginResponse)) {
+                if (saveLoginReturns(loginResponse, true)) {
                     document.getElementById("mobileInput")
                         .value = "";
                 }
@@ -185,7 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 token: ltoken,
                 nickname: content.nickname,
                 id: content.userId,
-                balance: content.money
+                balance: content.money,
+                level: content.level
             };
             if (getAccountInfo(accountInfo.id) !== null) {
                 alert("登录信息中存在相同ID账号");
@@ -210,64 +217,106 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     async function fetchDataBeforeLogin(url, data) {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Host": "pocketapi.48.cn",
-                "Content-Type": "application/json;charset=utf-8",
-                "Content-Length": "153",
-                "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive",
-                "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
-                "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
-                "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
-                "appInfo": JSON.stringify({
-                    "vendor": "Huawei",
-                    "deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
-                    "appVersion": "7.1.0",
-                    "appBuild": "23051902",
-                    "osVersion": "16.6.0",
-                    "osType": "ios",
-                    "deviceName": "Huawei",
-                    "os": "ios"
-                })
-            },
-            body: JSON.stringify(data)
-        });
-
-        return await response.json();
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Host": "pocketapi.48.cn",
+                    "Content-Type": "application/json;charset=utf-8",
+                    "Content-Length": "153",
+                    "Accept": "*/*",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Connection": "keep-alive",
+                    "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
+                    "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
+                    "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
+                    "appInfo": generateRandomDeviceInfo()
+                },
+                body: JSON.stringify(data)
+            });
+    
+            return await response.json();
+            
+        }catch (error) {
+               document.getElementById("warningBar").style.display = "block";
+               const confirmDownload = confirm("跨域访问被禁止，您的浏览器无法使用本工具的纯前端版。是否要下载 PHP 版并自行搭建使用？", "现在前往", "稍后");
+                if (confirmDownload) {
+                    window.open("https://github.com/Lawaxi/WebPocket48Assistant/releases/tag/%E5%B7%B1-php", "_blank");
+                }
+        }
     }
 
     async function fetchData(url, data) {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Host": "pocketapi.48.cn",
-                "Content-Type": "application/json;charset=utf-8",
-                "Content-Length": "153",
-                "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive",
-                "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
-                "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
-                "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
-                "appInfo": JSON.stringify({
-                    "vendor": "Huawei",
-                    "deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
-                    "appVersion": "7.1.0",
-                    "appBuild": "23051902",
-                    "osVersion": "16.6.0",
-                    "osType": "ios",
-                    "deviceName": "Huawei",
-                    "os": "ios"
-                }),
-                "token": currentToken
-            },
-            body: JSON.stringify(data)
-        });
-
-        return await response.json();
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Host": "pocketapi.48.cn",
+                    "Content-Type": "application/json;charset=utf-8",
+                    "Content-Length": "153",
+                    "Accept": "*/*",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Connection": "keep-alive",
+                    "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
+                    "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
+                    "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
+                    "appInfo": JSON.stringify({
+                        "vendor": "Huawei",
+                        "deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
+                        "appVersion": "7.1.0",
+                        "appBuild": "23051902",
+                        "osVersion": "16.6.0",
+                        "osType": "ios",
+                        "deviceName": "Huawei",
+                        "os": "ios"
+                    }),
+                    "token": currentToken
+                },
+                body: JSON.stringify(data)
+            });
+    
+            return await response.json();
+            
+        }catch (error) {
+               document.getElementById("warningBar").style.display = "block";
+               const confirmDownload = confirm("跨域访问被禁止，您的浏览器无法使用本工具的纯前端版。是否要下载 PHP 版并自行搭建使用？", "现在前往", "稍后");
+                if (confirmDownload) {
+                    window.open("https://github.com/Lawaxi/WebPocket48Assistant/releases/tag/%E5%B7%B1-php", "_blank");
+                }
+        }
+    }
+    
+    function generateRandomDeviceInfo() {
+      // 随机生成设备 ID
+      const characters = '0123456789abcdef';
+      const deviceIdLength = 36;
+      let deviceId = '';
+      for (let i = 0; i < deviceIdLength; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        deviceId += characters.charAt(randomIndex);
+      }
+    
+      // 随机生成设备型号、操作系统和其他信息
+      const deviceModels = ['Samsung Galaxy S10', 'iPhone X', 'Google Pixel 4', 'OnePlus 8', 'Huawei P30'];
+      const osTypes = ['ios', 'android'];
+      const vendors = ['Apple', 'Samsung', 'Google', 'OnePlus', 'Huawei'];
+    
+      const randomDeviceName = deviceModels[Math.floor(Math.random() * deviceModels.length)];
+      const randomOsType = osTypes[Math.floor(Math.random() * osTypes.length)];
+      const randomVendor = vendors[Math.floor(Math.random() * vendors.length)];
+    
+      const randomDeviceInfo = {
+        vendor: randomVendor,
+        deviceId: deviceId,
+        appVersion: '7.1.0',
+        appBuild: '23051902',
+        osVersion: '16.6.0',
+        osType: randomOsType,
+        deviceName: randomDeviceName,
+        os: 'ios'
+      };
+    
+      return JSON.stringify(randomDeviceInfo);
     }
 
     // 存储账户信息到 LocalStorage
@@ -315,7 +364,11 @@ document.addEventListener("DOMContentLoaded", () => {
         accountInfos.forEach(accountInfo => {
             const option = document.createElement("option");
             option.value = accountInfo.id;
-            option.textContent = accountInfo.nickname;
+            if (accountInfo.level) {
+                option.textContent = `${accountInfo.nickname} (lv.${accountInfo.level})`;
+            } else {
+                option.textContent = accountInfo.nickname;
+            }
             accountSelect.appendChild(option);
         });
     }
@@ -324,11 +377,9 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAccountSelector();
         const accountInfos = getAccountInfosFromLocalStorage();
         if (accountInfos.length > 0) {
-            // Select the first account by default
             const firstAccount = accountInfos[0];
             updateSelectedAccount(firstAccount);
         } else {
-            // No accounts available, clear the selected account info
             updateSelectedAccount(null);
         }
     }
@@ -348,7 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function saveLoginReturns(response) {
+    function saveLoginReturns(response, showAlert) {
         if (response.status === 200) {
             const {
                 content
@@ -359,7 +410,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 token: content.token,
                 nickname: content.userInfo.nickname,
                 id: content.userInfo.userId,
-                balance: content.userInfo.money
+                balance: content.userInfo.money,
+                level: content.userInfo.level
             };
             const accountInfos = getAccountInfosFromLocalStorage();
             accountInfos.push(accountInfo);
@@ -371,13 +423,87 @@ document.addEventListener("DOMContentLoaded", () => {
                 newOption.selected = true;
             }
             updateSelectedAccount(accountInfo);
-            alert("已登录");
+            if(showAlert){
+                alert("已登录");
+            }
             return true;
         } else {
-            alert(`登录失败${response.status}: ${response.message}`);
+            if(showAlert){
+                alert(`登录失败${response.status}: ${response.message}`);
+            }
             return false;
         }
     }
+    
+    batchLoginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const loginInfoTextarea = document.getElementById("loginInfo");
+        const delimiterInput = document.getElementById("delimiter");
+        
+        const loginInfoText = loginInfoTextarea.value;
+        const delimiter = delimiterInput.value;
+        
+        const loginInfoArray = loginInfoText.split('\n');
+        
+        let count = 0;
+        for (const info of loginInfoArray) {
+            const [mobile, pwd] = info.split(delimiter);
+            
+            if (mobile && pwd) {
+                const randomDelay = Math.random() * 500;
+                await new Promise(resolve => setTimeout(resolve, randomDelay));
+                
+                const loginResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/login/app/mobile", {
+                    mobile,
+                    pwd
+                });
+                
+                if(saveLoginReturns(loginResponse, false)){
+                    count++;
+                }
+            }
+        }
+        
+        alert(`批量登录：${count}/${loginInfoArray.length}`);
+    });
+    
+    downloadLoginInfoButton.addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(getAccountInfosFromLocalStorage())], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "account-infos.json";
+        a.click();
+        
+        URL.revokeObjectURL(url);
+    });
+    
+    uploadLoginInfoButton.addEventListener("click", () => {
+        uploadLoginInfoInput.click();
+    });
+    
+    uploadLoginInfoInput.addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const uploadedLoginInfo = JSON.parse(e.target.result);
+                if (confirm("是否清空现有登录信息？")) {
+                    storeAccountInfosToLocalStorage(uploadedLoginInfo);
+                }else{
+                    const accountInfos = getAccountInfosFromLocalStorage();
+                    accountInfos.push(...uploadedLoginInfo);
+                    storeAccountInfosToLocalStorage(accountInfos);
+                }
+                updateAccountSelector();
+            };
+            reader.readAsText(file);
+        }else{
+            alert("未上传文件");
+        }
+    });
 
     deleteAccountButton.addEventListener("click", () => {
         const selectedAccountId = accountSelect.value;
@@ -914,10 +1040,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.getElementById("uploadAnswerList").addEventListener("click", function() {
-        document.getElementById("fileInput").click();
+        uploadAnswerListInput.click();
     });
 
-    document.getElementById("fileInput").addEventListener("change", function(event) {
+    uploadAnswerListInput.addEventListener("change", function(event) {
         const file = event.target.files[0];
 
         if (file) {

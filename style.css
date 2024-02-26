@@ -74,16 +74,16 @@ form, .column-container {
 }
 
 /* 横向排版 */
-.input-row, .select-row {
+.input-row, .select-row, .batch-delimiter {
     display: flex;
     align-items: center;
 }
 
-.mobile-input, .live-select {
+.mobile-input, .live-select, #batchLoginButton {
     flex: 1;
 }
 
-.mobile-input {
+.mobile-input, #batchLoginButton {
     margin-left: 10px;
 }
 
@@ -231,6 +231,13 @@ button:disabled {
     color: #888;
 }
 
-.disclaimer a{
+.disclaimer a, .info {
     color: #d0d0d0;
+}
+
+#warningBar {
+    background: linear-gradient(to bottom, #ff0000, #ff6666);
+    color: #ffffff;
+    text-align: center;
+    padding: 10px;
 }
