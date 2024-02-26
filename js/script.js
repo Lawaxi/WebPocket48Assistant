@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const pwd = document.getElementById("pwd")
             .value;
 
-        const loginResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/login/app/mobile", {
+        const loginResponse = await fetchDataBeforeLogin("proxy.php/user/api/v1/login/app/mobile", {
             mobile,
             pwd
         });
@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .value;
 
         // 发送验证码请求
-        const sendCodeResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/sms/send2", {
+        const sendCodeResponse = await fetchDataBeforeLogin("proxy.php/user/api/v1/sms/send2", {
             mobile: mobile,
             area: areaCode,
         });
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (code) {
                 // 发送验证码登录请求
-                const loginResponse = await fetchDataBeforeLogin("https://pocketapi.48.cn/user/api/v1/login/app/mobile/code", {
+                const loginResponse = await fetchDataBeforeLogin("proxy.php/user/api/v1/login/app/mobile/code", {
                     mobile: mobile,
                     code: code,
                 });
@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const ltoken = tokenInput.value;
         var ctoken = currentToken;
         currentToken = ltoken;
-        const response = await fetchData("https://pocketapi.48.cn/user/api/v1/user/info/reload", {});
+        const response = await fetchData("proxy.php/user/api/v1/user/info/reload", {});
         currentToken = ctoken;
 
         if (response.status === 200) {
@@ -212,27 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
     async function fetchDataBeforeLogin(url, data) {
         const response = await fetch(url, {
             method: "POST",
-            headers: {
-                "Host": "pocketapi.48.cn",
-                "Content-Type": "application/json;charset=utf-8",
-                "Content-Length": "153",
-                "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive",
-                "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
-                "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
-                "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
-                "appInfo": JSON.stringify({
-                    "vendor": "Huawei",
-                    "deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
-                    "appVersion": "7.1.0",
-                    "appBuild": "23051902",
-                    "osVersion": "16.6.0",
-                    "osType": "ios",
-                    "deviceName": "Huawei",
-                    "os": "ios"
-                })
-            },
             body: JSON.stringify(data)
         });
 
@@ -243,25 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const response = await fetch(url, {
             method: "POST",
             headers: {
-                "Host": "pocketapi.48.cn",
-                "Content-Type": "application/json;charset=utf-8",
-                "Content-Length": "153",
-                "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive",
-                "pa": "MTY5MjY1MzQwODAwMCwyNDExLDIwNzc2MUQxM0E2NjE1MjFCNkE0NkM4QTY4NTVCNjM3LA==",
-                "User-Agent": "PocketFans201807/7.1.0 (iPad; iOS 16.6; Scale/2.00)",
-                "Accept-Language": "zh-Hans-CN;q=1, zh-Hant-TW;q=0.9",
-                "appInfo": JSON.stringify({
-                    "vendor": "Huawei",
-                    "deviceId": "F2BA149C-06DB-9843-31DE-36BF375E36F2",
-                    "appVersion": "7.1.0",
-                    "appBuild": "23051902",
-                    "osVersion": "16.6.0",
-                    "osType": "ios",
-                    "deviceName": "Huawei",
-                    "os": "ios"
-                }),
                 "token": currentToken
             },
             body: JSON.stringify(data)
@@ -405,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const response = await fetchData("https://pocketapi.48.cn/user/api/v1/user/info/edit", {
+        const response = await fetchData("proxy.php/user/api/v1/user/info/edit", {
             key: "nickname",
             value: newNickname
         });
@@ -423,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const response = await fetchData("https://pocketapi.48.cn/user/api/v1/user/money", {
+        const response = await fetchData("proxy.php/user/api/v1/user/money", {
             token: currentToken
         });
 
@@ -477,7 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const response = await fetchData("https://pocketapi.48.cn/user/api/v1/logout/user", {});
+        const response = await fetchData("proxy.php/user/api/v1/logout/user", {});
         if (response.status === 200 || response.status === 401004) {
             // Remove account info from LocalStorage
             const accountInfos = getAccountInfosFromLocalStorage();
@@ -510,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const liveListResponse = await fetchData("https://pocketapi.48.cn/live/api/v1/live/getLiveList", {
+        const liveListResponse = await fetchData("proxy.php/live/api/v1/live/getLiveList", {
             groupId: 0,
             debug: true,
             next: 0,
@@ -571,7 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // 发送转账请求
-        const response = await fetchData("https://pocketapi.48.cn/gift/api/v1/gift/send", {
+        const response = await fetchData("proxy.php/gift/api/v1/gift/send", {
             giftId: giftId,
             businessId: liveId,
             isPocketGift: 0,
@@ -615,7 +575,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // 发送获取直播信息的请求
-        const liveInfoResponse = await fetchData("https://pocketapi.48.cn/live/api/v1/live/getLiveOne", {
+        const liveInfoResponse = await fetchData("proxy.php/live/api/v1/live/getLiveOne", {
             liveId: liveId
         });
 
@@ -645,7 +605,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "memberId": opponentId
         };
 
-        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v2/custom/index", requestBody);
+        const response = await fetchData("proxy.php/idolanswer/api/idolanswer/v2/custom/index", requestBody);
 
         if (response && response.status === 200) {
             cardPrices = response.content.customs;
@@ -697,7 +657,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "answerType": parseInt(answerType)
         };
 
-        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question", requestBody);
+        const response = await fetchData("proxy.php/idolanswer/api/idolanswer/v1/user/question", requestBody);
 
         if (response && response.status === 200) {
             alert("提问成功");
@@ -880,7 +840,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question/list", {
+        const response = await fetchData("proxy.php/idolanswer/api/idolanswer/v1/user/question/list", {
             status: 0,
             beginLimit: startIndex,
             memberId: "",
@@ -901,7 +861,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question/operate", {
+        const response = await fetchData("proxy.php/idolanswer/api/idolanswer/v1/user/question/operate", {
             memberId: "",
             questionId: questionId
         });
@@ -953,7 +913,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let responseSize = 20;
 
         while (responseSize > 0) {
-            const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/question/list", {
+            const response = await fetchData("proxy.php/idolanswer/api/idolanswer/v1/user/question/list", {
                 status: 0,
                 beginLimit: beginLimit,
                 memberId: "",
@@ -1056,7 +1016,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const searchContent = searchInput.value;
         if (searchContent) {
-            const response = await fetchData("https://pocketapi.48.cn/im/api/v1/im/server/search", {
+            const response = await fetchData("proxy.php/im/api/v1/im/server/search", {
                 searchContent: searchContent
             });
 
@@ -1118,7 +1078,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let combinedUserNftList = [];
 
             while (page < totalPages) {
-                const response = await fetchData("https://pocketapi.48.cn/idolanswer/api/idolanswer/v1/user/nft/user_nft_list", {
+                const response = await fetchData("proxy.php/idolanswer/api/idolanswer/v1/user/nft/user_nft_list", {
                     starId: parseInt(userId), // 转换为整数
                     size: 20,
                     page: page

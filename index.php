@@ -192,11 +192,9 @@
             </section>
 
             <div class="disclaimer">
-                <p>本网站仅提供前端，在您设备本地运行，不会获取您的任何数据，并在 <a href="https://github.com/Lawaxi/WebPocket48Assistant" target="_blank">
+                <p>开源： <a href="https://github.com/Lawaxi/WebPocket48Assistant" target="_blank">
                         Lawaxi/WebPocket48Assistant on GitHub
                     </a> 上开源</p>
-                <p>This assistant is developed based on the Pocket48 app. For more features, please use the official authentic app. If there are any copyright concerns, we will remove the content promptly.
-                </p>
             </div>
         </div>
         <script src="js/tab.js"></script>
